@@ -1,0 +1,913 @@
+/* Session + finish screens. Two colour worlds: WORK (category colour) and REST (calm mist blue), cross-faded. */
+
+/* Exercise colour world follows the category (set inline on .sx). Registered as colours so the
+   whole screen — background glow, buttons, ring, progress — fades smoothly between categories. */
+@property --c-work {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #ff5a1f;
+}
+@property --c-work-2 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #ff8a3d;
+}
+@property --c-work-text {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #ff8a5c;
+}
+
+/* ---------- Shell ---------- */
+.sx {
+  position: relative;
+  isolation: isolate;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding-left: calc(var(--sp-4) + var(--safe-left));
+  padding-right: calc(var(--sp-4) + var(--safe-right));
+}
+
+.sx {
+  transition:
+    --c-work 650ms var(--ease-in-out),
+    --c-work-2 650ms var(--ease-in-out),
+    --c-work-text 650ms var(--ease-in-out);
+  --c-work-soft: color-mix(in srgb, var(--c-work) 16%, transparent);
+  --grad-work: linear-gradient(135deg, var(--c-work) 0%, var(--c-work-2) 100%);
+  --glow-work: 0 12px 24px -10px color-mix(in srgb, var(--c-work) 70%, transparent);
+  --grad-work-text: var(--grad-work);
+}
+[data-theme='light'] .sx {
+  --grad-work-text: linear-gradient(
+    135deg,
+    var(--c-work-text) 0%,
+    color-mix(in srgb, var(--c-work-text) 75%, var(--c-work)) 100%
+  );
+}
+.sx-world {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  transition: opacity 700ms var(--ease-in-out);
+}
+.sx-world--work {
+  background:
+    radial-gradient(120% 55% at 50% -12%, color-mix(in srgb, var(--c-work) calc(30% * var(--glow-alpha)), transparent), transparent 62%),
+    radial-gradient(80% 40% at 100% 100%, color-mix(in srgb, var(--c-work-2) calc(10% * var(--glow-alpha)), transparent), transparent 70%);
+}
+.sx-world--rest {
+  opacity: 0;
+  background:
+    radial-gradient(120% 55% at 50% -12%, color-mix(in srgb, var(--c-rest) calc(30% * var(--glow-alpha)), transparent), transparent 62%),
+    radial-gradient(80% 40% at 0% 100%, color-mix(in srgb, var(--c-rest-2) calc(14% * var(--glow-alpha)), transparent), transparent 70%);
+}
+.sx--rest .sx-world--rest {
+  opacity: 1;
+}
+.sx--rest .sx-world--work {
+  opacity: 0;
+}
+
+/* End-of-timer pulse sits behind the content (whole background pulses, buttons stay crisp). */
+.sx > .pulse-overlay {
+  z-index: 0;
+}
+.sx-top,
+.sx-view {
+  position: relative;
+  z-index: 1;
+}
+
+/* ---------- Top bar ---------- */
+.sx-top {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding-top: calc(var(--sp-2) + var(--safe-top));
+}
+.sx-top__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+}
+.sx-top__actions {
+  display: flex;
+  gap: var(--sp-1);
+}
+.sx-elapsed {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--r-pill);
+  background: var(--c-overlay);
+  border: 1px solid var(--c-border);
+  color: var(--c-text-2);
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-sm);
+}
+.sx-progress {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+.sx-progress > .progress {
+  flex: 1 1 auto;
+}
+.sx-progress__count {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+  color: var(--c-muted);
+  min-width: 3.5em;
+  text-align: right;
+}
+
+/* ---------- Step view transitions ---------- */
+@keyframes sx-in-fwd {
+  from {
+    opacity: 0;
+    transform: translate3d(40px, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes sx-in-back {
+  from {
+    opacity: 0;
+    transform: translate3d(-40px, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.sx-view {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  animation: sx-in-fwd 460ms var(--ease-emph) both;
+}
+.sx-view--back {
+  animation-name: sx-in-back;
+}
+
+/* ---------- Work view ---------- */
+.sx-work,
+.sx-rest {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+  padding-top: var(--sp-5);
+  padding-bottom: var(--sp-4);
+}
+.sx-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--sp-3);
+}
+.sx-position {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.02em;
+  color: var(--c-work-text);
+}
+.sx-badges {
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+.sx-name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 9.5vw, 2.75rem);
+  font-weight: var(--fw-black);
+  line-height: 1.05;
+  letter-spacing: var(--tracking-tight);
+  overflow-wrap: anywhere;
+}
+.sx-name--long {
+  font-size: clamp(1.55rem, 7.4vw, 2.1rem);
+  line-height: 1.1;
+}
+.sx-note {
+  margin: 0;
+  color: var(--c-text-2);
+  font-size: var(--fs-sm);
+  line-height: 1.35;
+}
+.sx-side {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px 5px 8px;
+  border-radius: var(--r-pill);
+  background: var(--c-elevated);
+  border: 1px solid var(--c-border-strong);
+  color: var(--c-text);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-bold);
+}
+.sx-side--sm {
+  padding: 3px 10px;
+  font-size: var(--fs-xs);
+}
+.sx-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--r-pill);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+}
+.sx-chip--done {
+  background: var(--c-success-soft);
+  color: var(--c-success-text);
+}
+.sx-chip--skipped {
+  background: var(--c-overlay);
+  color: var(--c-text-2);
+}
+
+.sx-target {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-6) var(--sp-4);
+  border-radius: var(--r-xl);
+  background: linear-gradient(160deg, color-mix(in srgb, var(--c-work) 10%, transparent), color-mix(in srgb, var(--c-surface) 85%, transparent) 55%);
+  border: 1px solid color-mix(in srgb, var(--c-work-2) 22%, transparent);
+  box-shadow: var(--shadow-2);
+}
+.sx-target__value {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+.sx-target__num {
+  background: var(--grad-work-text);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.sx-target__unit {
+  font-size: var(--fs-2xl);
+  font-weight: var(--fw-bold);
+  color: var(--c-text-2);
+}
+
+/* Rings (time + rest). The ring scales down on short screens so the step fits above the action
+   bar (the inline px size from ProgressRing is the upper bound). */
+.sx {
+  --sx-ring: min(248px, 34dvh);
+}
+.sx .ring.sx-ring {
+  width: var(--sx-ring) !important;
+  height: var(--sx-ring) !important;
+}
+.sx-ringwrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-3);
+  margin: 0 auto;
+}
+.sx-ring .ring__value--animated {
+  transition: stroke-dashoffset 220ms linear;
+}
+.sx-ring-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.sx-clock {
+  font-size: clamp(3.5rem, 17vw, 4.5rem);
+  line-height: 1;
+}
+.sx-clock--final {
+  color: var(--c-work-text);
+  animation: tb-pop 420ms var(--ease-spring) both;
+}
+.sx-clock--over {
+  color: var(--c-rest-text);
+}
+.sx-prep-num {
+  font-size: 6.5rem;
+  line-height: 1;
+  color: var(--c-work-text);
+}
+.sx-timeup {
+  font-size: clamp(3rem, 15vw, 4rem);
+  line-height: 1;
+  color: var(--c-success-text);
+}
+.sx-ring-label {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--c-muted);
+}
+.sx-ring-label--work {
+  color: var(--c-work-text);
+}
+.sx-ring-label--rest {
+  color: var(--c-rest-text);
+}
+.sx-ring-hint {
+  font-size: var(--fs-xs);
+  color: var(--c-muted);
+}
+.sx-ring-tip {
+  margin: 0;
+  font-size: var(--fs-sm);
+  text-align: center;
+}
+.sx-ringwrap.is-paused .sx-clock,
+.sx-ringwrap.is-paused .sx-prep-num {
+  opacity: 0.5;
+}
+
+/* "Up next" strip (work view) */
+.sx-upnext {
+  margin-top: auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: var(--sp-2);
+  row-gap: 2px;
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--r-lg);
+  background: color-mix(in srgb, var(--c-surface) 70%, transparent);
+  border: 1px solid var(--c-border);
+  font-size: var(--fs-sm);
+}
+.sx-upnext__label {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--c-muted);
+}
+.sx-upnext__label--last {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--c-success-text);
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: var(--fs-sm);
+}
+.sx-upnext__name {
+  font-weight: var(--fw-semibold);
+}
+.sx-upnext__meta {
+  color: var(--c-muted);
+  font-size: var(--fs-xs);
+}
+
+/* ---------- Rest view ---------- */
+.sx-rest__head {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-1);
+}
+.sx-rest__eyebrow {
+  color: var(--c-rest-text);
+}
+.sx-rest__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--fs-2xl);
+  font-weight: var(--fw-black);
+  letter-spacing: var(--tracking-tight);
+}
+.sx-rest__title--ended {
+  font-size: var(--fs-3xl);
+  color: var(--c-rest-text);
+}
+.sx-next {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-4);
+  border-radius: var(--r-xl);
+  background: linear-gradient(150deg, color-mix(in srgb, var(--c-rest) 12%, transparent), color-mix(in srgb, var(--c-surface) 92%, transparent) 60%);
+  border: 1px solid color-mix(in srgb, var(--c-rest) 32%, transparent);
+  box-shadow: var(--shadow-2);
+}
+.sx-next__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--c-rest-text);
+}
+.sx-next__body {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-3);
+}
+.sx-next__main {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.sx-next__name {
+  font-family: var(--font-display);
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-black);
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+.sx-next__meta {
+  font-size: var(--fs-sm);
+  color: var(--c-text-2);
+}
+.sx-next__chips {
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin-top: 4px;
+}
+.sx-next__target {
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-bold);
+}
+
+/* ---------- Actions ---------- */
+/* Opaque behind every row (only the top padding fades): if the step is taller than the screen,
+   content scrolls under the bar instead of printing through the buttons. */
+.action-bar.sx-actions {
+  background: linear-gradient(to top, var(--c-bg) calc(100% - var(--sp-4)), transparent);
+}
+.sx-actions__row {
+  display: flex;
+  gap: var(--sp-3);
+}
+.action-bar.sx-actions .sx-actions__row > .sx-btn-back {
+  flex: 0 0 auto;
+  padding-inline: var(--sp-4);
+}
+.action-bar.sx-actions .sx-actions__row > .sx-btn-main {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding-inline: var(--sp-4);
+  white-space: nowrap;
+}
+/* narrow phones (≤ 375 px): keep long labels like "Pomiń przerwę" on one line */
+@media (max-width: 380px) {
+  .action-bar.sx-actions .sx-actions__row > .btn--lg {
+    font-size: var(--fs-md);
+  }
+}
+.action-bar.sx-actions .sx-actions__row--sub {
+  justify-content: space-between;
+}
+.action-bar.sx-actions .sx-actions__row--sub > * {
+  flex: 0 0 auto;
+}
+
+@keyframes sx-breathe-rest {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--c-rest) 50%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 12px color-mix(in srgb, var(--c-rest) 0%, transparent);
+  }
+}
+.breathe-rest {
+  animation: sx-breathe-rest 1.6s var(--ease-in-out) infinite;
+}
+
+/* ---------- Check burst ---------- */
+@keyframes sx-burst-life {
+  0%,
+  65% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+.sx-burst {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  animation: sx-burst-life 900ms var(--ease-out) both;
+}
+.sx-burst > * {
+  grid-area: 1 / 1;
+}
+.sx-burst__disc {
+  width: 112px;
+  height: 112px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--grad-success);
+  color: var(--c-on-accent);
+  box-shadow: var(--glow-success);
+}
+.sx-burst__ring {
+  width: 112px;
+  height: 112px;
+  border-radius: 50%;
+  border: 4px solid var(--c-success);
+}
+
+/* ---------- Menu sheet ---------- */
+.sx-menu {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+.sx-menu__item {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  width: 100%;
+  min-height: 64px;
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--r-lg);
+  background: var(--c-elevated);
+  border: 1px solid var(--c-border);
+  color: var(--c-text);
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+.sx-menu__item:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.sx-menu__icon {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--c-elevated-2);
+  color: var(--c-work-text);
+}
+.sx-menu__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.sx-menu__label {
+  font-weight: var(--fw-bold);
+}
+.sx-menu__hint {
+  font-size: var(--fs-xs);
+  color: var(--c-muted);
+}
+.sx-menu__chev {
+  color: var(--c-muted);
+}
+.sx-menu__item--danger .sx-menu__icon,
+.sx-menu__item--danger .sx-menu__label {
+  color: var(--c-danger-text);
+}
+
+/* ---------- Step list sheet ---------- */
+.sx-list-hint {
+  margin: 0 0 var(--sp-3);
+  font-size: var(--fs-sm);
+}
+.sx-list__group + .sx-list__group {
+  margin-top: var(--sp-4);
+}
+.sx-list__title {
+  margin: 0 0 var(--sp-2);
+  color: var(--c-muted);
+}
+.sx-list__rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+.sx-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  width: 100%;
+  min-height: 56px;
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--r-md);
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  color: var(--c-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.sx-row.is-current {
+  background: var(--c-work-soft);
+  border-color: var(--c-work);
+}
+.sx-row__text {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.sx-row__title {
+  font-weight: var(--fw-semibold);
+}
+.sx-row__side {
+  font-weight: var(--fw-regular);
+  color: var(--c-text-2);
+}
+.sx-row__sub {
+  font-size: var(--fs-xs);
+  color: var(--c-muted);
+}
+.sx-row__status {
+  flex: 0 0 auto;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+  color: var(--c-muted);
+}
+.sx-row--done .sx-row__status {
+  color: var(--c-success-text);
+}
+.sx-row.is-current .sx-row__status {
+  color: var(--c-work-text);
+}
+.sx-row--skipped:not(.is-current) .sx-row__title {
+  color: var(--c-text-2);
+}
+.sx-status {
+  width: 28px;
+  height: 28px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+}
+.sx-status--done {
+  background: var(--grad-success);
+  color: var(--c-on-accent);
+}
+.sx-status--skipped {
+  border: 2px dashed var(--c-border-strong);
+  color: var(--c-muted);
+}
+.sx-status--todo {
+  border: 2px solid var(--c-border-strong);
+}
+.sx-status--current {
+  background: var(--grad-work);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--c-work) 25%, transparent);
+}
+
+/* ---------- Finish ---------- */
+.fx {
+  position: relative;
+  isolation: isolate;
+}
+.fx-glow {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(110% 50% at 50% -8%, color-mix(in srgb, var(--c-success) 24%, transparent), transparent 60%),
+    radial-gradient(90% 45% at 100% 100%, color-mix(in srgb, var(--c-work) 14%, transparent), transparent 70%);
+}
+.fx--early .fx-glow {
+  background:
+    radial-gradient(110% 50% at 50% -8%, color-mix(in srgb, var(--c-work) 20%, transparent), transparent 60%),
+    radial-gradient(90% 45% at 0% 100%, color-mix(in srgb, var(--c-rest) 10%, transparent), transparent 70%);
+}
+.fx-body {
+  padding-top: calc(var(--sp-8) + var(--safe-top));
+  gap: var(--sp-6);
+}
+.fx-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-3);
+  text-align: center;
+}
+.fx-medal {
+  position: relative;
+  width: 104px;
+  height: 104px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--grad-success);
+  color: var(--c-on-accent);
+  box-shadow: var(--glow-success);
+}
+.fx--early .fx-medal {
+  background: var(--grad-work);
+  box-shadow: var(--glow-work);
+}
+.fx-medal__ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 3px solid var(--c-success);
+  animation: tb-ring-burst 1.6s var(--ease-out) 2 both;
+}
+.fx--early .fx-medal__ring {
+  display: none;
+}
+.fx-title {
+  margin: var(--sp-2) 0 0;
+  font-family: var(--font-display);
+  font-size: var(--fs-3xl);
+  font-weight: var(--fw-black);
+  letter-spacing: var(--tracking-tight);
+  line-height: 1.1;
+}
+.fx-sub {
+  margin: 0;
+  color: var(--c-text-2);
+  max-width: 30ch;
+}
+.fx-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  padding: var(--sp-5);
+  border-radius: var(--r-xl);
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  box-shadow: var(--shadow-2);
+}
+.fx-card__head {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.fx-card__name {
+  font-family: var(--font-display);
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-black);
+}
+.fx-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-3);
+}
+.fx-stat {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas:
+    'icon label'
+    'value value';
+  align-items: center;
+  column-gap: var(--sp-2);
+  row-gap: 4px;
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--r-lg);
+  background: var(--c-elevated);
+}
+.fx-stat--big {
+  grid-column: 1 / -1;
+}
+.fx-stat__icon {
+  grid-area: icon;
+  display: grid;
+  color: var(--c-muted);
+}
+.fx-stat__label {
+  grid-area: label;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+  color: var(--c-muted);
+}
+.fx-stat__value {
+  grid-area: value;
+  font-family: var(--font-display);
+  font-size: var(--fs-2xl);
+  font-weight: var(--fw-black);
+}
+.fx-stat--big .fx-stat__value {
+  font-size: var(--fs-4xl);
+  line-height: 1;
+}
+.fx-stat--work .fx-stat__icon {
+  color: var(--c-work-text);
+}
+.fx-stat--work .fx-stat__value {
+  background: var(--grad-work-text);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.fx-stat--success .fx-stat__icon,
+.fx-stat--success .fx-stat__value {
+  color: var(--c-success-text);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .fx-title {
+    animation-delay: 120ms;
+  }
+  .fx-sub {
+    animation-delay: 200ms;
+  }
+  .fx-card {
+    animation-delay: 300ms;
+  }
+}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .sx-view,
+  .sx-view--back {
+    animation: tb-fade-in 1ms linear both;
+  }
+  .sx-clock--final,
+  .breathe-rest,
+  .fx-medal__ring {
+    animation: none;
+  }
+  .sx-world,
+  .sx {
+    transition: none;
+  }
+  .sx-burst {
+    animation: sx-burst-life 700ms linear both;
+  }
+}
+
+/* Short phones (iPhone SE/8: 667 px): tighter spacing, smaller ring, no "tap Start" tip, so the
+   time step with its two-row action bar fits without the "Up next" card going under the bar. */
+@media (max-height: 740px) {
+  .sx {
+    --sx-ring: min(248px, 30dvh);
+  }
+  .sx-work,
+  .sx-rest {
+    gap: var(--sp-3);
+    padding-top: var(--sp-3);
+    padding-bottom: var(--sp-2);
+  }
+  .sx-hero {
+    gap: var(--sp-2);
+  }
+  .sx-ring-tip {
+    display: none;
+  }
+  .sx-name {
+    font-size: clamp(1.75rem, 8.5vw, 2.5rem);
+  }
+}
+
+/* While the screen pulses (also the static colour under reduced motion), small muted/tinted text
+   drawn straight on the background would drop below WCAG AA → switch it to the main text colour. */
+.sx--alert
+  :is(
+    .sx-elapsed,
+    .sx-progress__count,
+    .sx-position,
+    .sx-ring-label,
+    .sx-ring-hint,
+    .sx-upnext__label,
+    .sx-upnext__meta,
+    .sx-rest__eyebrow,
+    .sx-chip--skipped
+  ) {
+  color: var(--c-text);
+}
+
+/* While the screen pulses, let the colour reach the bottom edge. */
+.sx--alert .action-bar.sx-actions {
+  background: none;
+}

@@ -1,0 +1,216 @@
+/*
+ * Design tokens. Dark is the default (:root); [data-theme='light'] overrides colours only.
+ * <html data-theme> is set before the first paint (index.html) and kept in sync by app/theme.ts.
+ * Filled accent surfaces (buttons, pills) always use --c-on-accent (near-black) text for WCAG AA.
+ * Never hard-code colours in components: add a token here with a value for both themes.
+ */
+:root {
+  color-scheme: dark;
+
+  /* Neutrals */
+  --c-bg: #0b0f17;
+  --c-bg-deep: #070a10;
+  --c-surface: #141a24;
+  --c-elevated: #1d2532;
+  --c-elevated-2: #263042;
+  --c-border: rgb(255 255 255 / 0.08);
+  --c-border-strong: rgb(255 255 255 / 0.16);
+  --c-text: #f3f5f9;
+  --c-text-2: #c5ccd8;
+  --c-muted: #8b95a7;
+  --c-on-accent: #0b0f17;
+  --c-scrim: rgb(4 6 10 / 0.72);
+  /* translucent layer on top of surfaces (chips, shimmer) */
+  --c-overlay: rgb(255 255 255 / 0.06);
+  --c-overlay-strong: rgb(255 255 255 / 0.08);
+  /* ring around small coloured dots */
+  --c-dot-ring: rgb(0 0 0 / 0.25);
+  /* mixed into category colours for badge text: lighter on dark, deeper on light */
+  --c-badge-tint: #ffffff;
+  /* strength of decorative background glows (session colour world, app background) */
+  --glow-alpha: 1;
+
+  /* WORK / primary energy: ember */
+  --c-work: #ff5a1f;
+  --c-work-2: #ff8a3d;
+  --c-work-text: #ff8a5c; /* AA on bg/surface for small text */
+  --c-work-soft: color-mix(in srgb, var(--c-work) 16%, transparent);
+  --grad-work: linear-gradient(135deg, var(--c-work) 0%, var(--c-work-2) 100%);
+  /* gradient used as TEXT colour (big numerals): on light backgrounds it needs the deeper shades */
+  --grad-work-text: var(--grad-work);
+
+  /* REST: electric teal -> sky */
+  --c-rest: #7fa3c9; /* calm mist blue: low chroma, distinct from every category colour */
+  --c-rest-2: #a6c1de;
+  --c-rest-text: #a9c3df;
+  --c-rest-soft: color-mix(in srgb, var(--c-rest) 16%, transparent);
+  --grad-rest: linear-gradient(135deg, var(--c-rest) 0%, var(--c-rest-2) 100%);
+
+  /* Success / done: lime */
+  --c-success: #a3e635;
+  --c-success-2: #d9f99d;
+  --c-success-soft: color-mix(in srgb, var(--c-success) 16%, transparent);
+  --c-success-deep: #84cc16;
+  --c-success-text: #a3e635;
+  --grad-success: linear-gradient(135deg, var(--c-success-deep) 0%, var(--c-success) 100%);
+
+  /* Warning (amber) and the iOS system blue used in install instructions */
+  --c-warn: #f5b83d;
+  --c-warn-text: #f5b83d;
+  --c-ios-blue: #4f8cff;
+
+  /* Danger */
+  --c-danger: #f43f5e;
+  --c-danger-text: #fb7185;
+  --c-danger-soft: color-mix(in srgb, var(--c-danger) 16%, transparent);
+
+  /* Categories (FR1) */
+  --c-cat-pull: #4f8cff;
+  --c-cat-push: #ff6b4a;
+  --c-cat-legs: #a06bff;
+  --c-cat-posterior: #f5b83d;
+  --c-cat-core: #2dd4bf;
+  --c-cat-shoulders: #f472b6;
+  --c-cat-biceps: #84cc16;
+  --c-cat-triceps: #facc15;
+
+  /* Typography (system fonts only) */
+  --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, system-ui, sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, system-ui, sans-serif;
+  --fs-xs: 0.75rem;
+  --fs-sm: 0.875rem;
+  --fs-md: 1rem;
+  --fs-lg: 1.125rem;
+  --fs-xl: 1.375rem;
+  --fs-2xl: 1.75rem;
+  --fs-3xl: 2.25rem;
+  --fs-4xl: clamp(2.5rem, 11vw, 3.25rem);
+  --fs-display: clamp(4.5rem, 24vw, 7.5rem); /* session timer / big numerals */
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+  --fw-black: 800;
+  --lh-tight: 1.1;
+  --lh-base: 1.45;
+  --tracking-tight: -0.02em;
+  --tracking-caps: 0.08em;
+
+  /* Spacing (4px grid) */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-7: 32px;
+  --sp-8: 40px;
+  --sp-9: 56px;
+
+  /* Radii */
+  --r-xs: 8px;
+  --r-sm: 12px;
+  --r-md: 16px;
+  --r-lg: 20px;
+  --r-xl: 24px;
+  --r-pill: 999px;
+
+  /* Sizes */
+  --tap-min: 48px;
+  --btn-h: 48px;
+  --btn-h-lg: 60px;
+  --app-max-w: 480px;
+
+  /* Shadows / glows */
+  --shadow-1: 0 1px 2px rgb(0 0 0 / 0.4), 0 2px 8px rgb(0 0 0 / 0.25);
+  --shadow-2: 0 8px 24px rgb(0 0 0 / 0.45);
+  --shadow-3: 0 18px 48px rgb(0 0 0 / 0.55);
+  /* Glows reach at most 14 px sideways (blur − spread), inside the 16 px screen padding, so the
+     app column's horizontal clip never cuts them. */
+  --glow-work: 0 12px 24px -10px color-mix(in srgb, var(--c-work) 70%, transparent);
+  --glow-rest: 0 12px 24px -10px color-mix(in srgb, var(--c-rest) 60%, transparent);
+  --glow-success: 0 12px 24px -10px color-mix(in srgb, var(--c-success) 55%, transparent);
+
+  /* Motion */
+  --dur-instant: 80ms;
+  --dur-fast: 140ms;
+  --dur-base: 240ms;
+  --dur-slow: 400ms;
+  --dur-screen: 340ms;
+  --dur-progress: 700ms;
+  --stagger-step: 55ms;
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-emph: cubic-bezier(0.05, 0.7, 0.1, 1);
+
+  /* Safe areas */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+
+  /* Layers */
+  --z-header: 10;
+  --z-actions: 20;
+  --z-pulse: 30;
+  --z-sheet: 50;
+  --z-dialog: 60;
+  --z-toast: 70;
+}
+
+/* ---------- Light theme ---------- */
+[data-theme='light'] {
+  color-scheme: light;
+
+  --c-bg: #f5f7fb;
+  --c-bg-deep: #e9edf4;
+  --c-surface: #ffffff;
+  --c-elevated: #eef2f7;
+  --c-elevated-2: #e2e8f0;
+  --c-border: rgb(15 23 42 / 0.1);
+  --c-border-strong: rgb(15 23 42 / 0.18);
+  --c-text: #0f172a;
+  --c-text-2: #334155;
+  --c-muted: #5b6b82; /* AA on #fff and #f5f7fb */
+  --c-scrim: rgb(15 23 42 / 0.45);
+  --c-overlay: rgb(15 23 42 / 0.05);
+  --c-overlay-strong: rgb(15 23 42 / 0.07);
+  --c-dot-ring: rgb(15 23 42 / 0.12);
+  --c-badge-tint: #000000;
+  --glow-alpha: 0.6;
+
+  /* Small text in accent colours needs darker shades on a light background (WCAG AA) */
+  --c-work-text: #c2410c;
+  --c-rest-text: #3b6a99;
+  --c-success-text: #4d7c0f;
+  --c-danger-text: #be123c;
+  --c-ios-blue: #2563eb;
+  --c-warn-text: #b45309;
+  --grad-work-text: linear-gradient(135deg, var(--c-work-text) 0%, color-mix(in srgb, var(--c-work-text) 75%, var(--c-work)) 100%);
+
+  /* Category colours: deeper shades so text, icons and dots stay readable on white */
+  --c-cat-pull: #1d4ed8;
+  --c-cat-push: #c2410c;
+  --c-cat-legs: #7c3aed;
+  --c-cat-posterior: #b45309;
+  --c-cat-core: #0f766e;
+  --c-cat-shoulders: #be185d;
+  --c-cat-biceps: #4d7c0f;
+  --c-cat-triceps: #a16207;
+
+  --shadow-1: 0 1px 2px rgb(15 23 42 / 0.06), 0 2px 8px rgb(15 23 42 / 0.06);
+  --shadow-2: 0 8px 24px rgb(15 23 42 / 0.1);
+  --shadow-3: 0 18px 48px rgb(15 23 42 / 0.14);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-screen: 1ms;
+    --dur-progress: 1ms;
+    --stagger-step: 0ms;
+    --ease-spring: var(--ease-out);
+  }
+}

@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="pl" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0B0F17" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#F5F7FB" media="(prefers-color-scheme: light)" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="description" content="Training Buddy — prowadzi trening z masą ciała krok po kroku: ćwiczenie, przerwa z odliczaniem, następne. Działa offline." />
+    <meta name="application-name" content="TrainBuddy" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="TrainBuddy" />
+    <meta name="format-detection" content="telephone=no" />
+    <link rel="icon" href="./icons/icon.svg" type="image/svg+xml" />
+    <link rel="icon" href="./icons/favicon-32.png" type="image/png" sizes="32x32" />
+    <link rel="apple-touch-icon" href="./icons/apple-touch-icon-180.png" sizes="180x180" />
+    <title>Training Buddy</title>
+    <script>
+      // Theme before the first paint (no flash): same rules as src/app/theme.ts.
+      (function () {
+        var choice = null;
+        try {
+          choice = localStorage.getItem('tb-theme');
+        } catch (e) {}
+        var light =
+          choice === 'light' ||
+          (choice !== 'dark' && !!window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches);
+        var theme = light ? 'light' : 'dark';
+        var root = document.documentElement;
+        root.setAttribute('data-theme', theme);
+        root.style.colorScheme = theme;
+        if (choice === 'light' || choice === 'dark') {
+          var meta = document.createElement('meta');
+          meta.name = 'theme-color';
+          meta.content = light ? '#F5F7FB' : '#0B0F17';
+          document.head.appendChild(meta);
+        }
+      })();
+    </script>
+    <style>
+      /* Paint the theme colour before CSS/JS load (no flash on cold start). */
+      html,
+      body {
+        background: #0b0f17;
+        color: #f3f5f9;
+      }
+      html[data-theme='light'],
+      html[data-theme='light'] body {
+        background: #f5f7fb;
+        color: #0f172a;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <noscript>Training Buddy wymaga włączonego JavaScriptu.</noscript>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

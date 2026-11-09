@@ -1,0 +1,38 @@
+/** Namespace "settings" (pl). Access as t('settings.<key>'). Owned by the home agent. */
+const settings: Record<string, string> = {
+  'section.appearance': 'Wygląd',
+  theme: 'Motyw',
+  'theme.system': 'Systemowy',
+  'theme.light': 'Jasny',
+  'theme.dark': 'Ciemny',
+  'theme.now.light': 'jasny',
+  'theme.now.dark': 'ciemny',
+  'theme.systemNow': 'Jak w telefonie — teraz {theme}.',
+  'theme.fixedDesc': 'Stały motyw, niezależny od ustawień telefonu.',
+  title: 'Ustawienia',
+  'section.general': 'Ogólne',
+  'section.signals': 'Sygnały',
+  'section.workout': 'Trening',
+  'section.data': 'Dane',
+  'section.about': 'O aplikacji',
+  language: 'Język',
+  'language.pl': 'Polski',
+  'language.en': 'English',
+  sound: 'Dźwięk',
+  'sound.desc': 'Sygnał na koniec przerwy i odliczania.',
+  'sound.test': 'Test dźwięku',
+  'sound.testUnavailable': 'Dźwięk nie jest dostępny w tej przeglądarce.',
+  'sound.iosInfo':
+    'Na iPhonie przełącznik wyciszenia może wyciszyć sygnał — wtedy koniec przerwy pokaże pulsujący ekran. Muzyka gra dalej.',
+  keepScreenOn: 'Nie wygaszaj ekranu',
+  'keepScreenOn.desc': 'Ekran nie zgaśnie w trakcie treningu, żeby sygnał zawsze zagrał.',
+  reset: 'Resetuj dane',
+  'reset.desc': 'Usuwa własne ćwiczenia, treningi, zmiany FBW A/B i ustawienia.',
+  'reset.confirmTitle': 'Zresetować wszystkie dane?',
+  'reset.confirmMessage':
+    'Aplikacja wróci do stanu pierwszego uruchomienia. Tej operacji nie można cofnąć.',
+  'reset.confirm': 'Resetuj',
+  version: 'Wersja {version}',
+  madeFor: 'Prywatna aplikacja treningowa — dane zostają na tym urządzeniu.',
+};
+export default settings;

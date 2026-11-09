@@ -1,0 +1,725 @@
+/* Configurator (T5/T6). Uses tokens from styles/tokens.css and tb-* keyframes from animations.css. */
+
+.cfg-body {
+  gap: var(--sp-6);
+}
+
+.cfg-tabs-wrap {
+  padding: var(--sp-1) 0 var(--sp-3);
+  position: sticky;
+  top: 0;
+  z-index: var(--z-header);
+  background: linear-gradient(to bottom, var(--c-bg) 75%, transparent);
+}
+
+.cfg-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+.cfg-section__title {
+  padding-left: var(--sp-1);
+}
+
+.cfg-group-head {
+  padding: var(--sp-2) var(--sp-1) 0;
+}
+
+/* ---------- Empty states / notes ---------- */
+.cfg-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-6) var(--sp-4);
+  text-align: center;
+  color: var(--c-muted);
+  border: 1.5px dashed var(--c-border-strong);
+  border-radius: var(--r-lg);
+}
+.cfg-empty--items {
+  padding: var(--sp-5) var(--sp-4);
+}
+.cfg-empty.is-invalid {
+  border-color: var(--c-danger);
+  color: var(--c-danger-text);
+}
+
+.cfg-note {
+  display: flex;
+  gap: var(--sp-3);
+  align-items: flex-start;
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--r-md);
+  background: var(--c-rest-soft);
+  color: var(--c-text-2);
+  font-size: var(--fs-sm);
+}
+.cfg-note svg {
+  flex: none;
+  color: var(--c-rest-text);
+  margin-top: 2px;
+}
+
+/* ---------- List rows ---------- */
+.cfg-row {
+  display: flex;
+  align-items: stretch;
+  padding: 0;
+  gap: 0;
+}
+.cfg-row::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: var(--row-accent, var(--c-border-strong));
+}
+.cfg-row__main {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  padding: var(--sp-4) var(--sp-2) var(--sp-4) calc(var(--sp-4) + 4px);
+  text-align: left;
+  color: inherit;
+  border-radius: var(--r-lg);
+}
+.cfg-row__titles {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+.cfg-row__name {
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-bold);
+  overflow-wrap: anywhere;
+}
+.cfg-row__tags {
+  display: flex;
+  gap: var(--sp-1);
+}
+.cfg-row__meta {
+  color: var(--c-text-2);
+  font-size: var(--fs-sm);
+}
+.cfg-row__meta--sub {
+  color: var(--c-muted);
+  font-size: var(--fs-xs);
+}
+.cfg-row__dots {
+  display: flex;
+  gap: 6px;
+  margin-top: var(--sp-1);
+}
+.cfg-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--cat);
+  box-shadow: 0 0 0 2px var(--c-dot-ring);
+}
+.cfg-row__actions {
+  display: flex;
+  align-items: center;
+  padding-right: var(--sp-1);
+  color: var(--c-text-2);
+}
+/* One-shot highlight of a just created / saved row: overlay only, so removing the class
+   never restarts the element's own entrance animation. */
+.cfg-row--highlight::after,
+.cfg-item--fresh::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 2px solid var(--c-work-2);
+  background: var(--c-work-soft);
+  pointer-events: none;
+  animation: cfg-highlight 1.5s var(--ease-out) 150ms both;
+}
+@keyframes cfg-highlight {
+  0% {
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.cfg-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: var(--r-pill);
+  background: var(--c-elevated-2);
+  color: var(--c-text-2);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  letter-spacing: 0.02em;
+}
+.cfg-tag--work {
+  background: var(--c-work-soft);
+  color: var(--c-work-text);
+}
+
+/* ---------- Segmented control ---------- */
+.cfg-seg {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(var(--seg-n), 1fr);
+  padding: 4px;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-md);
+  isolation: isolate;
+}
+.cfg-seg__thumb {
+  position: absolute;
+  z-index: -1;
+  top: 4px;
+  bottom: 4px;
+  left: 4px;
+  width: calc((100% - 8px) / var(--seg-n));
+  border-radius: calc(var(--r-md) - 4px);
+  background: var(--grad-work);
+  box-shadow: var(--glow-work);
+  transform: translateX(calc(var(--seg-i) * 100%));
+  transition: transform var(--dur-slow) var(--ease-spring);
+}
+.cfg-seg--neutral .cfg-seg__thumb {
+  background: var(--c-elevated-2);
+  box-shadow: var(--shadow-1);
+}
+.cfg-seg__opt {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  min-height: var(--tap-min);
+  padding: 0 var(--sp-3);
+  border-radius: calc(var(--r-md) - 4px);
+  color: var(--c-muted);
+  font-weight: var(--fw-semibold);
+  transition: color var(--dur-base) var(--ease-out);
+}
+.cfg-seg__opt.is-active {
+  color: var(--c-text);
+}
+.cfg-seg--work .cfg-seg__opt.is-active {
+  color: var(--c-on-accent);
+}
+.cfg-seg__opt:disabled {
+  cursor: default;
+}
+
+/* ---------- Form fields ---------- */
+.cfg-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  border: none;
+  min-width: 0;
+}
+.cfg-label {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--c-text-2);
+  font-family: var(--font-sans);
+}
+.cfg-label--sm {
+  font-size: var(--fs-xs);
+  color: var(--c-muted);
+}
+.cfg-counter {
+  font-size: var(--fs-xs);
+  color: var(--c-muted);
+}
+.cfg-hint {
+  font-size: var(--fs-sm);
+  color: var(--c-muted);
+}
+.cfg-error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--c-danger-text);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+}
+.cfg-error svg {
+  flex: none;
+}
+
+.cfg .cfg-input {
+  background: var(--c-surface);
+  border-radius: var(--r-md);
+}
+.cfg .cfg-input--lg {
+  min-height: 56px;
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-semibold);
+}
+.cfg .cfg-input:disabled {
+  opacity: 0.7;
+}
+.cfg .is-invalid .cfg-input,
+.cfg .cfg-input[aria-invalid='true'] {
+  border-color: var(--c-danger);
+  box-shadow: 0 0 0 3px var(--c-danger-soft);
+}
+
+.cfg-num {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.cfg-num__label {
+  font-size: var(--fs-xs);
+  color: var(--c-muted);
+  font-weight: var(--fw-semibold);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cfg-num__box {
+  position: relative;
+}
+.cfg .cfg-num__input {
+  min-height: 56px;
+  padding-right: 3.2em;
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-bold);
+  text-align: left;
+}
+.cfg-num__unit {
+  position: absolute;
+  right: var(--sp-3);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--c-muted);
+  font-size: var(--fs-sm);
+  pointer-events: none;
+}
+
+.cfg-target {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+.cfg-target__grid {
+  display: grid;
+  gap: var(--sp-2);
+}
+.cfg-target__grid--2 {
+  grid-template-columns: 1fr 1fr;
+}
+.cfg-target__grid--3 {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+.cfg-target__grid--3 .cfg-num__input {
+  padding-right: 1.8em;
+}
+.cfg-target__errors {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Switch */
+.cfg-switch-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  padding: var(--sp-4);
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-md);
+}
+.cfg-switch-row .cfg-label {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: var(--fs-md);
+  color: var(--c-text);
+}
+.cfg-switch {
+  position: relative;
+  flex: none;
+  width: 60px;
+  height: 36px;
+  border-radius: var(--r-pill);
+  background: var(--c-elevated-2);
+  transition: background var(--dur-base) var(--ease-out);
+}
+/* 48 px touch target around the 36 px pill (a11y: touch targets ≥ 48 px) */
+.cfg-switch::before {
+  content: '';
+  position: absolute;
+  inset: -6px -4px;
+}
+.cfg-switch.is-on {
+  background: var(--grad-work);
+  box-shadow: var(--glow-work);
+}
+.cfg-switch__knob {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--c-text);
+  box-shadow: var(--shadow-1);
+  transition: transform var(--dur-slow) var(--ease-spring);
+}
+.cfg-switch.is-on .cfg-switch__knob {
+  transform: translateX(24px);
+}
+.cfg-switch:disabled {
+  opacity: 0.6;
+}
+
+/* Category chips (exercise form) */
+.cfg-cats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+.cfg-cat {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: var(--tap-min);
+  padding: 0 var(--sp-4);
+  border-radius: var(--r-pill);
+  border: 1.5px solid var(--c-border-strong);
+  background: var(--c-surface);
+  color: var(--c-text-2);
+  font-weight: var(--fw-semibold);
+}
+.cfg-cat svg {
+  color: var(--cat);
+}
+.cfg-cat.is-active {
+  border-color: var(--cat);
+  background: color-mix(in srgb, var(--cat) 18%, var(--c-surface));
+  color: var(--c-text);
+  animation: tb-pop 380ms var(--ease-spring);
+}
+.cfg-cat:disabled {
+  opacity: 0.6;
+}
+.cfg-cat.is-active:disabled {
+  opacity: 1;
+}
+
+.cfg-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  padding: var(--sp-5) var(--sp-4);
+}
+
+/* ---------- Workout items ---------- */
+.cfg-items {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+.cfg-items:empty {
+  display: none;
+}
+.cfg-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-3) var(--sp-3) calc(var(--sp-3) + 4px);
+  overflow: visible;
+}
+/* Entrance only for a just-added item (moving nodes on reorder would replay a base animation). */
+.cfg-item--fresh {
+  animation: tb-slide-in-right 480ms var(--ease-emph) both;
+}
+.cfg-item::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  border-radius: var(--r-lg) 0 0 var(--r-lg);
+  background: var(--row-accent);
+}
+.cfg-item.is-invalid {
+  border-color: var(--c-danger);
+}
+.cfg-item__head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+.cfg-item__no {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--row-accent) 22%, transparent);
+  color: var(--c-text);
+  font-weight: var(--fw-black);
+  font-size: var(--fs-sm);
+}
+.cfg-item__name {
+  font-size: var(--fs-md);
+  font-weight: var(--fw-bold);
+  overflow-wrap: anywhere;
+}
+.cfg-item__sub {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  color: var(--c-muted);
+}
+.cfg-item__type {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.cfg-item__type svg {
+  width: 14px;
+  height: 14px;
+}
+.cfg-item__order {
+  display: flex;
+  flex: none;
+}
+.cfg-item__order .icon-btn {
+  width: 44px;
+  height: 44px;
+}
+.cfg-item .stepper {
+  background: var(--c-elevated);
+}
+.cfg-item .cfg-input {
+  background: var(--c-elevated);
+}
+.cfg-item__remove {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: var(--tap-min);
+  padding: 0 var(--sp-2);
+  border-radius: var(--r-sm);
+  color: var(--c-muted);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+}
+.cfg-item__remove:hover {
+  color: var(--c-danger-text);
+}
+
+.cfg-summary {
+  font-size: var(--fs-sm);
+}
+
+.cfg-add {
+  border-style: dashed;
+}
+
+.cfg-danger-zone {
+  padding-top: var(--sp-2);
+  border-top: 1px solid var(--c-border);
+}
+.cfg-btn-danger {
+  color: var(--c-danger-text);
+}
+
+.cfg-save-bar__msg {
+  align-self: center;
+  padding: var(--sp-1) var(--sp-3);
+  border-radius: var(--r-pill);
+  background: color-mix(in srgb, var(--c-danger) 22%, var(--c-bg));
+  text-align: center;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+}
+
+.cfg-used-list {
+  margin: var(--sp-2) 0 0;
+  padding-left: var(--sp-5);
+  color: var(--c-text);
+  font-weight: var(--fw-semibold);
+}
+
+/* ---------- Picker ---------- */
+/* The sheet sits in an auto-sized grid track; pin its width to the viewport so the wide,
+   horizontally scrolling chip row cannot stretch it past the screen. */
+.sheet.cfg-picker {
+  width: 100vw;
+}
+.cfg-chips {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  gap: var(--sp-2);
+  overflow-x: auto;
+  margin: 0 calc(-1 * var(--sp-4));
+  padding: var(--sp-1) var(--sp-4) var(--sp-3);
+  background: var(--c-surface);
+  scrollbar-width: none;
+  contain: inline-size;
+}
+.cfg-chips::-webkit-scrollbar {
+  display: none;
+}
+.cfg-chip {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 var(--sp-4);
+  border-radius: var(--r-pill);
+  border: 1.5px solid var(--c-border-strong);
+  color: var(--c-text-2);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  white-space: nowrap;
+}
+.cfg-chip svg {
+  color: var(--cat, currentColor);
+}
+.cfg-chip.is-active {
+  border-color: var(--cat, var(--c-work-2));
+  background: color-mix(in srgb, var(--cat, var(--c-work)) 20%, transparent);
+  color: var(--c-text);
+}
+.cfg-picker__list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+.cfg-pick {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  min-height: 64px;
+  padding: var(--sp-3);
+  border-radius: var(--r-md);
+  background: var(--c-elevated);
+  text-align: left;
+}
+.cfg-pick__name {
+  display: block;
+  font-weight: var(--fw-semibold);
+}
+.cfg-pick__meta {
+  display: block;
+  font-size: var(--fs-sm);
+  color: var(--c-muted);
+}
+.cfg-pick__add {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--c-work-soft);
+  color: var(--c-work-text);
+  transition: transform var(--dur-base) var(--ease-spring), background var(--dur-fast);
+}
+.cfg-pick:active .cfg-pick__add {
+  background: var(--grad-work);
+  color: var(--c-on-accent);
+  transform: rotate(90deg) scale(1.1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cfg-row--highlight::after,
+  .cfg-item--fresh::after,
+  .cfg-item--fresh,
+  .cfg-cat.is-active {
+    animation: none;
+  }
+  .cfg-row--highlight::after,
+  .cfg-item--fresh::after {
+    opacity: 0.6;
+  }
+  .cfg-seg__thumb,
+  .cfg-switch__knob,
+  .cfg-pick__add {
+    transition: none;
+  }
+}
+
+.cfg-item__flow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding-top: var(--sp-2);
+  border-top: 1px dashed var(--c-border);
+}
+.cfg-item__linked {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  color: var(--c-work-text);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+}
+
+/* ---------- Plan editor ---------- */
+.cfg-plan-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-2) var(--sp-2) calc(var(--sp-3) + 4px);
+  overflow: hidden;
+}
+.cfg-plan-item::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: var(--row-accent);
+}
+.cfg-plan-item__name {
+  font-weight: var(--fw-bold);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.cfg-plan-pick {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  width: 100%;
+  min-height: 56px;
+  padding: var(--sp-3) var(--sp-4);
+  text-align: left;
+  color: var(--c-text);
+  font-weight: var(--fw-semibold);
+  background: var(--c-elevated);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-md);
+}
+.cfg-plan-pick.is-added {
+  opacity: 0.55;
+}

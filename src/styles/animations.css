@@ -1,0 +1,381 @@
+/*
+ * Reusable motion. Every animation here is disabled or softened under prefers-reduced-motion
+ * (bottom of the file). Utility classes are opt-in; components add them where appropriate.
+ */
+
+/* ---------- Keyframes ---------- */
+
+@keyframes tb-screen-in-forward {
+  from {
+    opacity: 0;
+    transform: translate3d(28px, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes tb-screen-in-back {
+  from {
+    opacity: 0;
+    transform: translate3d(-28px, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes tb-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes tb-fade-up {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes tb-slide-up {
+  from {
+    transform: translate3d(0, 100%, 0);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes tb-slide-in-right {
+  from {
+    opacity: 0;
+    transform: translate3d(40px, 0, 0) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes tb-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* 3-2-1 number pop */
+@keyframes tb-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  55% {
+    opacity: 1;
+    transform: scale(1.12);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Full-screen color pulses at end of rest / time countdown (D29) */
+@keyframes tb-pulse-work {
+  0%,
+  100% {
+    background-color: color-mix(in srgb, var(--c-work) 8%, transparent);
+  }
+  50% {
+    background-color: color-mix(in srgb, var(--c-work) 55%, transparent);
+  }
+}
+
+@keyframes tb-pulse-rest {
+  0%,
+  100% {
+    background-color: color-mix(in srgb, var(--c-rest) 8%, transparent);
+  }
+  50% {
+    background-color: color-mix(in srgb, var(--c-rest) 50%, transparent);
+  }
+}
+
+@keyframes tb-pulse-success {
+  0%,
+  100% {
+    background-color: color-mix(in srgb, var(--c-success) 8%, transparent);
+  }
+  50% {
+    background-color: color-mix(in srgb, var(--c-success) 45%, transparent);
+  }
+}
+
+/* Soft breathing glow for "current" elements */
+@keyframes tb-breathe {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--c-work-2) 45%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 10px color-mix(in srgb, var(--c-work-2) 0%, transparent);
+  }
+}
+
+/* Check-mark burst on "Zrobione" */
+@keyframes tb-check-burst {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) rotate(-12deg);
+  }
+  45% {
+    opacity: 1;
+    transform: scale(1.18) rotate(0);
+  }
+  70% {
+    transform: scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes tb-ring-burst {
+  0% {
+    opacity: 0.9;
+    transform: scale(0.6);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.9);
+  }
+}
+
+@keyframes tb-check-draw {
+  from {
+    stroke-dashoffset: 30;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes tb-shimmer {
+  from {
+    background-position: -200% 0;
+  }
+  to {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes tb-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes tb-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20%,
+  60% {
+    transform: translateX(-6px);
+  }
+  40%,
+  80% {
+    transform: translateX(6px);
+  }
+}
+
+/* ---------- Utility classes ---------- */
+
+.screen-enter {
+  animation: tb-screen-in-forward var(--dur-screen) var(--ease-emph) both;
+}
+.screen-enter--back {
+  animation-name: tb-screen-in-back;
+}
+.screen-enter--fade {
+  animation-name: tb-fade-in;
+}
+
+.fade-in {
+  animation: tb-fade-in var(--dur-base) var(--ease-out) both;
+}
+
+.fade-up {
+  animation: tb-fade-up var(--dur-slow) var(--ease-emph) both;
+}
+
+/*
+ * Staggered reveal: put .stagger on a list; children fade up one after another.
+ * Optionally set style={{'--i': n}} on a child to control its order explicitly.
+ */
+.stagger > * {
+  animation: tb-fade-up var(--dur-slow) var(--ease-emph) both;
+  animation-delay: calc(var(--i, 0) * var(--stagger-step));
+}
+.stagger > :nth-child(1) { --i: 0; }
+.stagger > :nth-child(2) { --i: 1; }
+.stagger > :nth-child(3) { --i: 2; }
+.stagger > :nth-child(4) { --i: 3; }
+.stagger > :nth-child(5) { --i: 4; }
+.stagger > :nth-child(6) { --i: 5; }
+.stagger > :nth-child(7) { --i: 6; }
+.stagger > :nth-child(8) { --i: 7; }
+.stagger > :nth-child(9) { --i: 8; }
+.stagger > :nth-child(n + 10) { --i: 9; }
+
+/* Press feedback */
+.press {
+  transition: transform var(--dur-fast) var(--ease-out), filter var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-base) var(--ease-out),
+    opacity var(--dur-fast) var(--ease-out);
+}
+.press:active:not(:disabled) {
+  transform: scale(0.96);
+  filter: brightness(1.08);
+}
+
+/* Full-screen pulse overlays (place inside a positioned container or fixed) */
+.pulse-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: var(--z-pulse);
+}
+.pulse-work {
+  animation: tb-pulse-work 1.1s var(--ease-in-out) infinite;
+}
+.pulse-rest {
+  animation: tb-pulse-rest 1.1s var(--ease-in-out) infinite;
+}
+.pulse-success {
+  animation: tb-pulse-success 1.1s var(--ease-in-out) infinite;
+}
+
+.pop {
+  animation: tb-pop 520ms var(--ease-spring) both;
+}
+
+.slide-up {
+  animation: tb-slide-up var(--dur-slow) var(--ease-emph) both;
+}
+
+/* "Next exercise" card */
+.slide-in-next {
+  animation: tb-slide-in-right 480ms var(--ease-emph) both;
+  animation-delay: 120ms;
+}
+
+.scale-in {
+  animation: tb-scale-in var(--dur-base) var(--ease-spring) both;
+}
+
+.breathe {
+  animation: tb-breathe 2s var(--ease-in-out) infinite;
+}
+
+.check-burst {
+  animation: tb-check-burst 560ms var(--ease-spring) both;
+}
+.check-burst-ring {
+  animation: tb-ring-burst 640ms var(--ease-out) both;
+}
+.check-draw {
+  stroke-dasharray: 30;
+  animation: tb-check-draw 360ms var(--ease-out) 120ms both;
+}
+
+.shimmer {
+  background: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--c-overlay-strong) 50%,
+      transparent 100%
+    )
+    var(--c-elevated);
+  background-size: 200% 100%;
+  animation: tb-shimmer 1.6s linear infinite;
+}
+
+.shake {
+  animation: tb-shake 360ms var(--ease-out);
+}
+
+.spin {
+  animation: tb-spin 1s linear infinite;
+}
+
+/* ---------- Reduced motion ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .screen-enter,
+  .screen-enter--back,
+  .screen-enter--fade,
+  .fade-up,
+  .stagger > *,
+  .slide-up,
+  .slide-in-next,
+  .scale-in,
+  .pop,
+  .check-burst,
+  .shake {
+    animation: tb-fade-in 1ms linear both;
+    animation-delay: 0ms;
+  }
+
+  .check-burst-ring,
+  .breathe,
+  .shimmer,
+  .spin {
+    animation: none;
+  }
+
+  .check-draw {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+
+  .press:active:not(:disabled) {
+    transform: none;
+  }
+
+  /* D29: no flashing — static color change instead */
+  .pulse-work {
+    animation: none;
+    background-color: color-mix(in srgb, var(--c-work) 35%, transparent);
+  }
+  .pulse-rest {
+    animation: none;
+    background-color: color-mix(in srgb, var(--c-rest) 32%, transparent);
+  }
+  .pulse-success {
+    animation: none;
+    background-color: color-mix(in srgb, var(--c-success) 30%, transparent);
+  }
+
+  *,
+  *::before,
+  *::after {
+    transition-duration: 1ms !important;
+  }
+}

@@ -1,0 +1,435 @@
+/* PWA area: update banner, install chip, install screen (iOS), lock hint.
+   All motion lives inside `prefers-reduced-motion: no-preference` blocks — reduced motion = static UI. */
+
+/* ---------- Update banner (FR35) ---------- */
+.pwa-update {
+  position: fixed;
+  top: calc(var(--safe-top) + var(--sp-3));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: var(--z-toast);
+  width: min(calc(100% - 2 * var(--sp-4)), calc(var(--app-max-w) - 2 * var(--sp-4)));
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-2) var(--sp-3) var(--sp-3);
+  border-radius: var(--r-lg);
+  background: var(--c-elevated-2);
+  border: 1px solid var(--c-border-strong);
+  box-shadow: var(--shadow-3);
+}
+.pwa-update__icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--r-sm);
+  background: var(--grad-work);
+  color: var(--c-on-accent);
+  box-shadow: var(--glow-work);
+}
+.pwa-update__text {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: var(--fs-sm);
+  line-height: 1.3;
+}
+.pwa-update__text span {
+  color: var(--c-text-2);
+  font-size: var(--fs-xs);
+}
+.pwa-update__actions {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+}
+
+/* ---------- Install chip (FR38) ---------- */
+.pwa-chip {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 2px;
+  padding: 4px;
+  border-radius: var(--r-pill);
+  background: var(--c-work-soft);
+  border: 1px solid color-mix(in srgb, var(--c-work-2) 35%, transparent);
+  color: var(--c-text);
+  max-width: 100%;
+}
+.pwa-chip--floating {
+  position: fixed;
+  left: 50%;
+  bottom: calc(var(--sp-4) + var(--safe-bottom) + 84px);
+  transform: translateX(-50%);
+  z-index: var(--z-toast);
+  background: var(--c-elevated-2);
+  box-shadow: var(--shadow-2), var(--glow-work);
+}
+.pwa-chip__main {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-height: 40px;
+  padding: 0 var(--sp-3) 0 4px;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  white-space: nowrap;
+  cursor: pointer;
+}
+.pwa-chip__icon {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--grad-work);
+  color: var(--c-on-accent);
+}
+.pwa-chip__close {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--c-muted);
+  cursor: pointer;
+}
+.pwa-chip__main:focus-visible,
+.pwa-chip__close:focus-visible {
+  outline: 2px solid var(--c-work-2);
+  outline-offset: 2px;
+}
+
+/* ---------- Install screen (FR36) ---------- */
+.pwa-install__hero {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+}
+.pwa-install__app-icon {
+  flex: none;
+  width: 72px;
+  height: 72px;
+  border-radius: 18px;
+  box-shadow: var(--glow-work);
+}
+.pwa-install__lead {
+  margin: 0;
+  color: var(--c-text-2);
+  line-height: var(--lh-base);
+}
+
+.pwa-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.pwa-step {
+  position: relative;
+  display: grid;
+  grid-template-columns: 40px 1fr auto;
+  align-items: start;
+  gap: var(--sp-3);
+  padding: var(--sp-3) 0;
+}
+/* connector line between step numbers — "fills" top-down to lead the eye */
+.pwa-step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 19px;
+  top: calc(var(--sp-3) + 44px);
+  bottom: -8px;
+  width: 2px;
+  border-radius: 1px;
+  background: linear-gradient(var(--c-work-2), var(--c-border-strong));
+  transform-origin: top;
+}
+.pwa-step__num {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--grad-work);
+  color: var(--c-on-accent);
+  font-weight: var(--fw-black);
+  font-size: var(--fs-lg);
+  box-shadow: var(--glow-work);
+}
+.pwa-step__text {
+  padding-top: 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: var(--fs-sm);
+  line-height: 1.35;
+}
+.pwa-step__text strong {
+  font-size: var(--fs-md);
+}
+.pwa-step__visual {
+  align-self: center;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--r-sm);
+  background: var(--c-elevated);
+  border: 1px solid var(--c-border-strong);
+  color: var(--c-ios-blue); /* iOS system blue: matches what the user looks for in Safari */
+}
+.pwa-step__app {
+  border-radius: 7px;
+}
+
+.pwa-note {
+  display: flex;
+  gap: var(--sp-3);
+  padding: var(--sp-4);
+  border-radius: var(--r-lg);
+  border: 1px solid var(--c-border);
+  background: var(--c-surface);
+}
+.pwa-note strong {
+  display: block;
+  margin-bottom: var(--sp-1);
+}
+.pwa-note p {
+  margin: 0;
+  color: var(--c-text-2);
+  font-size: var(--fs-sm);
+  line-height: var(--lh-base);
+}
+.pwa-note__icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--r-sm);
+}
+.pwa-note--warn {
+  border-color: color-mix(in srgb, var(--c-warn) 40%, transparent);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--c-warn) 12%, transparent), transparent 70%), var(--c-surface);
+}
+.pwa-note--warn .pwa-note__icon {
+  background: color-mix(in srgb, var(--c-warn) 18%, transparent);
+  color: var(--c-warn-text);
+}
+.pwa-note--rest {
+  border-color: color-mix(in srgb, var(--c-rest) 35%, transparent);
+  background: linear-gradient(135deg, var(--c-rest-soft), transparent 70%), var(--c-surface);
+}
+.pwa-note--rest .pwa-note__icon {
+  background: var(--c-rest-soft);
+  color: var(--c-rest-text);
+}
+
+/* ---------- Lock hint (FR37) ---------- */
+.pwa-lock__art {
+  display: grid;
+  place-items: center;
+  padding: var(--sp-2) 0;
+}
+.pwa-phone {
+  width: min(64vw, 220px);
+  height: auto;
+  overflow: visible;
+}
+.pwa-phone__ring {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 30;
+}
+.pwa-lock__text {
+  margin: 0;
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-bold);
+  line-height: 1.3;
+  text-align: center;
+  text-wrap: balance;
+}
+.pwa-tips {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+.pwa-tip {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--r-md);
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  color: var(--c-text-2);
+  font-size: var(--fs-sm);
+  line-height: 1.35;
+}
+.pwa-tip__icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--r-sm);
+  background: var(--c-rest-soft);
+  color: var(--c-rest-text);
+}
+
+/* ---------- Motion ---------- */
+@keyframes tb-pwa-drop {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -24px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+}
+@keyframes tb-pwa-rise {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 24px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+}
+@keyframes tb-pwa-step-in {
+  from {
+    opacity: 0;
+    transform: translateX(28px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes tb-pwa-line {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+/* guided "tap here" highlight that walks through the steps in a loop */
+@keyframes tb-pwa-tap {
+  0%,
+  30%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--c-ios-blue) 0%, transparent);
+    transform: none;
+  }
+  8% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--c-ios-blue) 55%, transparent);
+    transform: scale(1.08);
+  }
+  22% {
+    box-shadow: 0 0 0 14px color-mix(in srgb, var(--c-ios-blue) 0%, transparent);
+    transform: none;
+  }
+}
+@keyframes tb-pwa-icon-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-3deg);
+  }
+  50% {
+    transform: translateY(-6px) rotate(3deg);
+  }
+}
+@keyframes tb-pwa-ring {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: 100;
+  }
+}
+@keyframes tb-pwa-wave {
+  0%,
+  100% {
+    opacity: 0.15;
+  }
+  40% {
+    opacity: 1;
+  }
+}
+@keyframes tb-pwa-lock-in {
+  0% {
+    opacity: 0;
+    transform: translate(126px, 128px) scale(0.2) rotate(-40deg);
+  }
+  70% {
+    transform: translate(126px, 128px) scale(1.12) rotate(6deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(126px, 128px) scale(1) rotate(0);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .pwa-update {
+    animation: tb-pwa-drop var(--dur-slow) var(--ease-spring) both;
+  }
+  .pwa-chip--floating {
+    animation: tb-pwa-rise var(--dur-slow) var(--ease-spring) 600ms both;
+  }
+  .pwa-chip:not(.pwa-chip--floating) {
+    animation: tb-fade-up var(--dur-slow) var(--ease-emph) both;
+  }
+
+  .pwa-install__app-icon {
+    animation: tb-pwa-icon-float 4s var(--ease-in-out) infinite;
+  }
+  .pwa-step {
+    animation: tb-pwa-step-in var(--dur-slow) var(--ease-emph) both;
+    animation-delay: calc(250ms + var(--i, 0) * 180ms);
+  }
+  .pwa-step:not(:last-child)::after {
+    animation: tb-pwa-line 420ms var(--ease-out) both;
+    animation-delay: calc(450ms + var(--i, 0) * 180ms);
+  }
+  .pwa-step__visual {
+    animation: tb-pwa-tap 4.5s var(--ease-out) infinite;
+    animation-delay: calc(1.2s + var(--i, 0) * 1.5s);
+  }
+
+  .pwa-phone__ring {
+    animation: tb-pwa-ring 6s linear infinite;
+  }
+  .pwa-phone__wave {
+    animation: tb-pwa-wave 1.6s var(--ease-in-out) infinite;
+  }
+  .pwa-phone__wave--2 {
+    animation-delay: 0.25s;
+  }
+  .pwa-phone__lock {
+    animation: tb-pwa-lock-in 700ms var(--ease-spring) 350ms both;
+  }
+  .pwa-tips.stagger > * {
+    animation-delay: calc(300ms + var(--i, 0) * 120ms);
+  }
+}
