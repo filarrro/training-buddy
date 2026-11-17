@@ -1,7 +1,6 @@
 /** Shared strings (namespace "common"). Keys are flat; access as t('common.<key>'). */
 const common: Record<string, string> = {
   'app.name': 'Training Buddy',
-  'app.tagline': 'Your pocket coach',
   loading: 'Loading…',
   'storage.unavailable': 'Device storage unavailable — your data will not be saved after closing.',
   todo: 'Under construction',
@@ -13,15 +12,9 @@ const common: Record<string, string> = {
   'action.delete': 'Delete',
   'action.close': 'Close',
   'action.edit': 'Edit',
-  'action.add': 'Add',
   'action.duplicate': 'Duplicate',
-  'action.start': 'Start',
-  'action.next': 'Next',
-  'action.done': 'Done',
-  'action.ok': 'OK',
   'action.increase': 'Increase',
   'action.decrease': 'Decrease',
-  'action.more': 'More',
 
   'category.pull': 'Pull',
   'category.push': 'Push',
@@ -124,10 +117,6 @@ const common: Record<string, string> = {
 
   'count.sets_one': '{count} set',
   'count.sets_other': '{count} sets',
-  'count.reps_one': '{count} rep',
-  'count.reps_other': '{count} reps',
-  'count.rounds_one': '{count} round',
-  'count.rounds_other': '{count} rounds',
   'count.exercises_one': '{count} exercise',
   'count.exercises_other': '{count} exercises',
   'count.workouts_one': '{count} workout',

@@ -31,6 +31,19 @@ describe('session store', () => {
     expect(progress(session()).done).toBe(2);
   });
 
+  it('a tap landing right after the rest auto-advanced does not complete the next set', () => {
+    start();
+    t = 1_000_000;
+    sessionActions.complete('done');
+    vi.setSystemTime((t += 90_000)); // the 90 s rest is over
+    sessionActions.tick();
+    expect(session().phase).toBe('work');
+    expect(sessionActions.complete('done')).toBe(false); // aimed at "Skip rest"
+    later();
+    expect(sessionActions.complete('done')).toBe(true);
+    expect(progress(session()).done).toBe(2);
+  });
+
   it('"Skip rest" double tap does not mark the next set done (Skip rest → Done)', () => {
     start();
     t = 1_000_000;

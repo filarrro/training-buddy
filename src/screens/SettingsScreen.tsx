@@ -1,8 +1,12 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import type { ChangeEvent } from 'react';
 import { version as APP_VERSION } from '../../package.json';
 import { nav } from '../app/nav';
 import { Button, ConfirmDialog, Icon, ScreenHeader } from '../components';
 import { setThemeChoice, useResolvedTheme } from '../app/theme';
+import { applyBackup, buildBackup, parseBackup, saveBackupFile } from '../data/backup';
+import type { BackupFile } from '../data/backup';
+import { canVibrate } from '../session/haptics';
 import type { Lang, ThemeChoice } from '../domain/types';
 
 const THEME_CHOICES: readonly ThemeChoice[] = ['system', 'light', 'dark'];
@@ -21,6 +25,10 @@ export function SettingsScreen() {
   const lang = useSettings((s) => s.lang);
   const sound = useSettings((s) => s.sound);
   const keepScreenOn = useSettings((s) => s.keepScreenOn);
+  const countdownBeeps = useSettings((s) => s.countdownBeeps);
+  const vibration = useSettings((s) => s.vibration);
+  const fileInput = useRef<HTMLInputElement>(null);
+  const [pendingImport, setPendingImport] = useState<BackupFile | null>(null);
   const themeChoice = useSettings((s) => s.theme);
   const resolved = useResolvedTheme();
   const [confirmReset, setConfirmReset] = useState(false);
@@ -32,6 +40,41 @@ export function SettingsScreen() {
     const ok = await playTestBeep();
     if (!ok) showToast(t('settings.sound.testUnavailable'), { tone: 'danger' });
     window.setTimeout(() => setBeeping(false), 600);
+  };
+
+  const exportData = async () => {
+    try {
+      if ((await saveBackupFile(buildBackup())) === 'saved') showToast(t('settings.export.done'), { tone: 'success' });
+    } catch {
+      showToast(t('settings.export.failed'), { tone: 'danger' });
+    }
+  };
+
+  const onFile = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = ''; // the same file can be picked again
+    if (!file) return;
+    let text = '';
+    try {
+      text = await file.text();
+    } catch {
+      /* unreadable file → invalid */
+    }
+    const parsed = parseBackup(text);
+    if (parsed.ok) setPendingImport(parsed.file);
+    else showToast(t(`settings.import.${parsed.error}`), { tone: 'danger', durationMs: 6000 });
+  };
+
+  const doImport = () => {
+    if (!pendingImport) return;
+    applyBackup(pendingImport);
+    setPendingImport(null);
+    showToast(t('settings.import.done'), { tone: 'success' });
+  };
+
+  const importDate = (iso: string) => {
+    const d = new Date(iso);
+    return Number.isNaN(d.getTime()) ? '–' : d.toLocaleDateString(lang);
   };
 
   const doReset = () => {
@@ -107,6 +150,22 @@ export function SettingsScreen() {
               checked={sound}
               onChange={(v) => useSettings.getState().update({ sound: v })}
             />
+            <ToggleRow
+              icon="timer"
+              label={t('settings.countdownBeeps')}
+              description={t('settings.countdownBeeps.desc')}
+              checked={countdownBeeps}
+              onChange={(v) => useSettings.getState().update({ countdownBeeps: v })}
+            />
+            {canVibrate() && (
+              <ToggleRow
+                icon="device"
+                label={t('settings.vibration')}
+                description={t('settings.vibration.desc')}
+                checked={vibration}
+                onChange={(v) => useSettings.getState().update({ vibration: v })}
+              />
+            )}
             <Button
               variant="secondary"
               block
@@ -143,6 +202,24 @@ export function SettingsScreen() {
             {t('settings.section.data')}
           </h2>
           <div className="set-card">
+            <p className="muted small">{t('settings.backup.desc')}</p>
+            <Button variant="secondary" block icon="share" onClick={() => void exportData()}>
+              {t('settings.export')}
+            </Button>
+            <Button variant="secondary" block icon="copy" onClick={() => fileInput.current?.click()}>
+              {t('settings.import')}
+            </Button>
+            <input
+              ref={fileInput}
+              type="file"
+              accept="application/json,.json"
+              className="visually-hidden"
+              aria-label={t('settings.import')}
+              tabIndex={-1}
+              onChange={(e) => void onFile(e)}
+            />
+          </div>
+          <div className="set-card">
             <p className="muted small">{t('settings.reset.desc')}</p>
             <Button variant="danger" block icon="trash" disabled={resetting} onClick={() => setConfirmReset(true)}>
               {t('settings.reset')}
@@ -160,6 +237,24 @@ export function SettingsScreen() {
         </section>
       </div>
 
+      <ConfirmDialog
+        open={pendingImport !== null}
+        tone="danger"
+        title={t('settings.import.confirmTitle')}
+        message={
+          pendingImport
+            ? t('settings.import.confirmMessage', {
+                date: importDate(pendingImport.exportedAt),
+                exercises: pendingImport.data.exercises.length,
+                workouts: pendingImport.data.workouts.length,
+                plans: pendingImport.data.plans.length,
+              })
+            : ''
+        }
+        confirmLabel={t('settings.import.confirm')}
+        onCancel={() => setPendingImport(null)}
+        onConfirm={doImport}
+      />
       <ConfirmDialog
         open={confirmReset}
         tone="danger"

@@ -4,6 +4,9 @@ const session: Record<string, string> = {
   'position.circuit': 'Round {round}/{roundTotal} · Exercise {ex}/{exTotal}',
   'position.superset': 'Superset · Round {round}/{roundTotal} · Exercise {ex}/{exTotal}',
   'position.circuitBlock': 'Circuit · Round {round}/{roundTotal} · Exercise {ex}/{exTotal}',
+  'position.warmup': 'Warm-up · Exercise {ex}/{exTotal}',
+  'warmup.badge': 'Warm-up',
+  'warmup.note': 'Go light: little or no weight, low effort. Just warm the muscles up.',
   sideProgress: '{side} ({n}/2)',
   progressLabel: 'Workout progress',
   // plural form by the total ({count}); {done} = steps done or skipped
@@ -46,6 +49,7 @@ const session: Record<string, string> = {
   'rest.reason.sets': 'Rest between sets',
   'rest.reason.exercises': 'Rest between exercises',
   'rest.reason.rounds': 'Rest between rounds',
+  'rest.reason.warmup': 'Warm-up done. Workout next',
   'rest.reason.sides.leg': 'Switch legs',
   'rest.reason.sides.side': 'Switch sides',
   'rest.reason.sides.arm': 'Switch arms',
@@ -56,8 +60,10 @@ const session: Record<string, string> = {
   'rest.go': 'Next',
   'rest.remaining': '{time} of rest left',
   'rest.breathe': 'Breathe easy',
+  'rest.autoNext': 'Next exercise starts right after',
 
   'list.round': 'Round {n}',
+  'list.warmup': 'Warm-up',
   'list.superset': 'Superset · {names}',
   'list.circuitBlock': 'Circuit · {names}',
   'list.set': 'Set {n}',

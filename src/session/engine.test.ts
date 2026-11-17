@@ -10,6 +10,7 @@ import {
   endEarly,
   firstTodo,
   goBack,
+  hasDoneSet,
   isFinished,
   jumpTo,
   overtimeMs,
@@ -82,8 +83,32 @@ describe('complete + rest (BR5, FR18, AC5)', () => {
     expect(curWork(s)).toMatchObject({ exerciseId: DIPS, set: 1 });
   });
 
-  it('rest ends from timestamps (BR6) and counts overtime (D16, EC6)', () => {
+  it('rest end shows the next exercise on its own (auto-advance, the default)', () => {
     let s = complete(make(), 'done', T0);
+    expect(advance(s, T0 + 89_000)).toBe(s);
+    s = advance(s, T0 + 90_000);
+    expect(s.phase).toBe('work');
+    expect(curWork(s)).toMatchObject({ exerciseId: PULL, set: 2 });
+    expect(s.endsAt).toBeUndefined();
+    expect(progress(s).done).toBe(1);
+  });
+
+  it('warm-up steps are not counted as sets in the summary', () => {
+    let s = make({ ...fbwA, warmup: true });
+    expect(curWork(s)).toMatchObject({ exerciseId: PULL, warmup: true, set: 0 });
+    const warm = s.steps.filter((st) => st.kind === 'work' && st.warmup).length;
+    expect(warm).toBe(6); // 5 exercises, one of them per leg
+    for (let i = 0; i < warm; i++) s = doneAndSkip(s);
+    expect(curWork(s)).toMatchObject({ exerciseId: PULL, set: 1 });
+    expect(curWork(s).warmup).toBeUndefined();
+    expect(hasDoneSet(s)).toBe(false);
+    expect(summarize(s, T0)).toMatchObject({ setsDone: 0, setsTotal: 17, exercisesDone: 0, exercisesTotal: 5 });
+    s = doneAndSkip(s);
+    expect(hasDoneSet(s)).toBe(true);
+  });
+
+  it('rest ends from timestamps (BR6) and counts overtime (D16, EC6)', () => {
+    let s = complete(make({ ...fbwA, autoAdvance: false }), 'done', T0);
     expect(advance(s, T0 + 89_000)).toBe(s);
     expect(remainingMs(s, T0 + 30_000)).toBe(60_000);
     s = advance(s, T0 + 102_000);
@@ -179,7 +204,7 @@ describe('back (FR14, AC7, EC3)', () => {
   });
 
   it('after the rest ended (restDone) still returns to the step just completed (FR14, AC9)', () => {
-    let s = make();
+    let s = make({ ...fbwA, autoAdvance: false });
     s = jumpTo(s, byEx(s, DIPS, 1));
     s = doneAndSkip(s); // dips 1 done → dips 2
     s = jumpTo(s, byEx(s, PULL, 2));

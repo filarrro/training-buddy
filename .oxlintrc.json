@@ -1,0 +1,41 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "unicorn", "oxc", "react", "jsx-a11y", "import", "vitest"],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "warn"
+  },
+  "env": { "browser": true, "es2024": true },
+  "settings": { "react": { "version": "19" } },
+  "rules": {
+    "eqeqeq": "error",
+    "no-console": ["warn", { "allow": ["warn", "error"] }],
+    "react/rules-of-hooks": "error",
+    "react/exhaustive-deps": "warn",
+    "react/react-in-jsx-scope": "off",
+
+    // React Compiler-style checks: real signals, but the flagged patterns here are deliberate
+    // (slide direction kept in a ref, clocks started in effects). Shown, not blocking.
+    "react/refs": "warn",
+    "react/set-state-in-effect": "warn",
+    "react/purity": "warn",
+    "react/immutability": "warn",
+
+    // CSS side-effect imports are how styles are loaded.
+    "import/no-unassigned-import": "off",
+    "import/no-named-as-default": "off",
+    // Custom ARIA widgets (switch, segmented radios, status regions) are built on purpose;
+    // role="list" restores list semantics that Safari drops with list-style: none.
+    "jsx-a11y/prefer-tag-over-role": "off",
+    "jsx-a11y/no-redundant-roles": "off",
+    // Editors focus the name field on open.
+    "jsx-a11y/no-autofocus": "off",
+    // Style preferences with little value here.
+    "unicorn/consistent-function-scoping": "off",
+    "unicorn/prefer-add-event-listener": "off",
+    "unicorn/no-array-sort": "off",
+    "no-underscore-dangle": "off",
+    "no-shadow": "off"
+  },
+  "ignorePatterns": ["dist", "dev-dist", "coverage", "test-results", "playwright-report", "public"]
+}

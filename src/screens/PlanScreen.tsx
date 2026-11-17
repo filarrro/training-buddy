@@ -4,6 +4,8 @@ import { Button, IconButton, ScreenHeader } from '../components';
 import type { Workout } from '../domain/types';
 import { useT } from '../i18n';
 import { getPlanWorkouts, nextPlanWorkoutId, planName, useExercisesById, useLibrary, usePlan } from '../stores/library';
+import { workoutName } from '../domain/format';
+import { FavButton } from './home/FavButton';
 import { WorkoutCard } from './home/WorkoutCard';
 import './home/home.css';
 
@@ -36,7 +38,12 @@ export function PlanScreen({ planId }: { planId: string }) {
         title={planName(plan, t)}
         eyebrow={t('start.plan.eyebrow')}
         onBack={nav.back}
-        actions={<IconButton icon="edit" label={t('start.plan.edit')} onClick={editPlan} />}
+        actions={
+          <>
+            <FavButton id={plan.id} name={planName(plan, t)} variant="header" />
+            <IconButton icon="edit" label={t('start.plan.edit')} onClick={editPlan} />
+          </>
+        }
       />
       <div className="screen-body">
         {plan.noteKey && <p className="workout-note fade-up">{t(plan.noteKey)}</p>}
@@ -52,7 +59,7 @@ export function PlanScreen({ planId }: { planId: string }) {
             <p className="muted fade-up">{t('start.plan.choose')}</p>
             <ul className="wlist stagger" role="list">
               {workouts.map((w) => (
-                <li key={w.id}>
+                <li key={w.id} className="fav-host">
                   <WorkoutCard
                     workout={w}
                     exercisesById={byId}
@@ -60,6 +67,7 @@ export function PlanScreen({ planId }: { planId: string }) {
                     onEdit={editWorkout}
                     badge={w.id === nextId ? 'next' : w.id === lastId ? 'last' : undefined}
                   />
+                  <FavButton id={w.id} name={workoutName(w, t)} />
                 </li>
               ))}
             </ul>

@@ -30,7 +30,7 @@ test('(f) creates a custom exercise and a workout with it, then starts it', asyn
   // Back to start and run it
   await page.getByRole('button', { name: 'Wstecz' }).first().click();
   await expect(page.getByRole('heading', { name: /Gotowy na trening\?/ })).toBeVisible();
-  await page.getByRole('button', { name: new RegExp(workoutName) }).click();
+  await page.getByRole('button', { name: new RegExp(workoutName) }).first().click();
   await page.getByRole('button', { name: 'Start', exact: true }).click();
   await page.getByRole('button', { name: 'Rozumiem, zaczynamy' }).click();
   await expect(page.locator('.sx-name')).toHaveText(exName);

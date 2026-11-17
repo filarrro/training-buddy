@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "typecheck": "tsc -b",
+    "lint": "oxlint",
     "e2e": "playwright test -c e2e/playwright.config.ts"
   },
   "dependencies": {
@@ -31,6 +32,7 @@
     "@vitejs/plugin-react": "^6.2.1",
     "fake-indexeddb": "^6.2.7",
     "jsdom": "^29.1.1",
+    "oxlint": "^1.94.0",
     "typescript": "^7.0.2",
     "vite": "^8.3.6",
     "vite-plugin-pwa": "^2.0.0",

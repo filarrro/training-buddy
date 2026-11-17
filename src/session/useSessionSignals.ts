@@ -96,7 +96,12 @@ export function useSessionSignals(): void {
     return () => {
       const now = Date.now();
       for (const { p, cancel } of live) {
-        if (p.at <= now) ids.add(p.id);
+        if (p.at <= now) {
+          ids.add(p.id);
+          // Due by the wall clock (e.g. the rest-end chime when the session auto-advances): let it
+          // play even if the audio clock is a few ms behind. A stopped context is still cancelled.
+          if (audioState() === 'running') continue;
+        }
         cancel();
       }
     };
@@ -128,9 +133,19 @@ export function useSessionSignals(): void {
       sessionActions.tick();
       const after = useSessionStore.getState().session;
       // The end passed while hidden and the audio context was suspended → it did not play.
-      if (since !== null && after && before && !wasRunning && after.endsAt !== undefined && after.endsAt >= since) {
-        if (after.phase === 'restDone') playNow('restEnd');
-        else if (after.phase === 'countdownDone') playNow('timeEnd');
+      if (since !== null && after && before && !wasRunning) {
+        // Auto-advance: the rest is already gone, the next exercise is on screen.
+        const autoAdvanced =
+          before.phase === 'rest' &&
+          before.endsAt !== undefined &&
+          before.endsAt >= since &&
+          after.phase === 'work' &&
+          after.index === before.index + 1;
+        if (autoAdvanced) playNow('restEnd');
+        else if (after.endsAt !== undefined && after.endsAt >= since) {
+          if (after.phase === 'restDone') playNow('restEnd');
+          else if (after.phase === 'countdownDone') playNow('timeEnd');
+        }
       }
       // Audio clock may have stopped while hidden: reschedule upcoming signals.
       setEpoch((e) => e + 1);

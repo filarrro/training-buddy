@@ -9,11 +9,17 @@ import {
   getLooseWorkouts,
   getPlanWorkouts,
   nextPlanWorkoutId,
+  planName,
+  splitFavorites,
   useAllPlans,
+  useAllWorkouts,
   useExercisesById,
   useLibrary,
 } from '../stores/library';
+import { workoutName } from '../domain/format';
+import { FavButton } from './home/FavButton';
 import { PlanCard } from './home/PlanCard';
+import { ResumeBanner } from './home/ResumeBanner';
 import { WorkoutCard } from './home/WorkoutCard';
 import './home/home.css';
 
@@ -40,8 +46,17 @@ function HeroTitle({ title, accent }: { title: string; accent: string }) {
 /** Start screen (FR3, FR5): hero, workout cards, entry to configurator and settings. */
 export function StartScreen() {
   const t = useT();
-  const plans = useAllPlans();
-  const workouts = useLibrary(useShallow((s) => getLooseWorkouts(s)));
+  const allPlans = useAllPlans();
+  const allWorkouts = useAllWorkouts();
+  const loose = useLibrary(useShallow((s) => getLooseWorkouts(s)));
+  const favIds = useLibrary((s) => s.favorites);
+  // Favourites (plans, then workouts — also workouts that live inside a plan) come first; the
+  // sections below list the rest.
+  const fav = { favorites: favIds };
+  const { favorites: favPlans, others: plans } = splitFavorites(allPlans, fav);
+  const favWorkouts = splitFavorites(allWorkouts, fav).favorites;
+  const workouts = splitFavorites(loose, fav).others;
+  const hasFavs = favPlans.length + favWorkouts.length > 0;
   // Re-render when workouts or plan progress change (plan cards derive from them).
   const lib = useLibrary(
     useShallow((s) => ({
@@ -57,6 +72,25 @@ export function StartScreen() {
   const open = (w: Workout) => nav.go({ name: 'preview', workoutId: w.id });
   const openPlan = (p: Plan) => nav.go({ name: 'plan', planId: p.id });
   const edit = (w: Workout) => nav.go({ name: 'configWorkout', workoutId: w.id });
+
+  const planItem = (p: Plan) => (
+    <li key={p.id} className="fav-host">
+      <PlanCard
+        plan={p}
+        workouts={getPlanWorkouts(p, lib)}
+        exercisesById={byId}
+        nextId={nextPlanWorkoutId(p, lib)}
+        onOpen={openPlan}
+      />
+      <FavButton id={p.id} name={planName(p, t)} />
+    </li>
+  );
+  const workoutItem = (w: Workout) => (
+    <li key={w.id} className="fav-host">
+      <WorkoutCard workout={w} exercisesById={byId} onOpen={open} onEdit={edit} />
+      <FavButton id={w.id} name={workoutName(w, t)} />
+    </li>
+  );
 
   return (
     <div className="screen home">
@@ -88,7 +122,22 @@ export function StartScreen() {
           <p className="hero__subtitle fade-up">{t('start.hero.subtitle')}</p>
         </section>
 
+        <ResumeBanner />
+
         <InstallChip />
+
+        {hasFavs && (
+          <section className="stack" aria-labelledby="favs-title">
+            <h2 id="favs-title" className="section-title">
+              {t('start.section.favorites')}
+              <span className="section-title__count tabular">{favPlans.length + favWorkouts.length}</span>
+            </h2>
+            <ul className="wlist stagger" role="list">
+              {favPlans.map(planItem)}
+              {favWorkouts.map(workoutItem)}
+            </ul>
+          </section>
+        )}
 
         {plans.length > 0 && (
           <section className="stack" aria-labelledby="plans-title">
@@ -97,36 +146,22 @@ export function StartScreen() {
               <span className="section-title__count tabular">{plans.length}</span>
             </h2>
             <ul className="wlist stagger" role="list">
-              {plans.map((p) => (
-                <li key={p.id}>
-                  <PlanCard
-                    plan={p}
-                    workouts={getPlanWorkouts(p, lib)}
-                    exercisesById={byId}
-                    nextId={nextPlanWorkoutId(p, lib)}
-                    onOpen={openPlan}
-                  />
-                </li>
-              ))}
+              {plans.map(planItem)}
             </ul>
           </section>
         )}
 
-        {(workouts.length > 0 || plans.length === 0) && (
+        {(workouts.length > 0 || (allPlans.length === 0 && !hasFavs)) && (
           <section className="stack" aria-labelledby="workouts-title">
             <h2 id="workouts-title" className="section-title">
               {t('start.section.single')}
               <span className="section-title__count tabular">{workouts.length}</span>
             </h2>
             {workouts.length === 0 ? (
-              <p className="muted">{t(plans.length > 0 ? 'start.singleEmpty' : 'start.empty')}</p>
+              <p className="muted">{t('start.empty')}</p>
             ) : (
               <ul className="wlist stagger" role="list">
-                {workouts.map((w) => (
-                  <li key={w.id}>
-                    <WorkoutCard workout={w} exercisesById={byId} onOpen={open} onEdit={edit} />
-                  </li>
-                ))}
+                {workouts.map(workoutItem)}
               </ul>
             )}
           </section>

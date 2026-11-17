@@ -96,8 +96,26 @@ afterEach(() => {
 });
 
 describe('session signals', () => {
-  it('the rest-end chime is not cut when the phase flips to restDone (FR18, AC5)', async () => {
+  it('auto-advance: the rest-end chime plays once and is not cut when the next exercise appears', async () => {
     createSession(structuredClone(BUILTIN_WORKOUTS.find((w) => w.id === FBW_A_ID)!), structuredClone([...BUILTIN_EXERCISES]));
+    render(<Harness />);
+    await act(async () => {
+      sessionActions.complete('done');
+    });
+    const restIndex = useSessionStore.getState().session!.index;
+    for (let i = 0; i < 460; i++) await step(200);
+    const s = useSessionStore.getState().session!;
+    expect(s.phase).toBe('work');
+    expect(s.index).toBe(restIndex + 1);
+    expect(log.filter((l) => l.ev === 'stopNow')).toEqual([]);
+    expect(signalStarts(REST_END_MAIN)).toHaveLength(1);
+  });
+
+  it('the rest-end chime is not cut when the phase flips to restDone (FR18, AC5)', async () => {
+    createSession(
+      { ...structuredClone(BUILTIN_WORKOUTS.find((w) => w.id === FBW_A_ID)!), autoAdvance: false },
+      structuredClone([...BUILTIN_EXERCISES]),
+    );
     render(<Harness />);
     await act(async () => {
       sessionActions.complete('done');

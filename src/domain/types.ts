@@ -99,6 +99,16 @@ export interface Workout {
   items: WorkoutItem[];
   /** i18n key of a workout-level note (e.g. warm-up reminder) */
   noteKey?: string;
+  /**
+   * After a rest counts down to zero: true/undefined = play the signal and show the next exercise
+   * right away; false = stay on the rest screen counting overtime until "Next" is tapped.
+   */
+  autoAdvance?: boolean;
+  /**
+   * true = the session starts with a warm-up round: one light set of every exercise in order,
+   * with the short circuit rest between exercises, then the workout in its own mode.
+   */
+  warmup?: boolean;
 }
 
 /**
@@ -138,7 +148,8 @@ export interface Settings {
 }
 
 export type Side = 'left' | 'right';
-export type RestReason = 'sets' | 'exercises' | 'rounds' | 'sides';
+/** 'warmup' = the rest after the warm-up round, before the main part. */
+export type RestReason = 'sets' | 'exercises' | 'rounds' | 'sides' | 'warmup';
 
 export interface WorkStep {
   kind: 'work';
@@ -168,6 +179,8 @@ export interface WorkStep {
   roundsTotal?: number;
   /** unilateral only */
   side?: Side;
+  /** step of the warm-up round (set = 0): light effort, not counted as a set in the summary */
+  warmup?: true;
   /** 0-based ordinal among work steps (0..workCount-1) */
   workIndex: number;
 }
@@ -191,7 +204,8 @@ export type SessionStepStatus = 'todo' | 'done' | 'skipped';
  * - countdown: time exercise counting down (endsAt set)
  * - countdownDone: countdown reached 0, pulsing, waiting for "Done"
  * - rest: rest timer running (endsAt set; index points at the rest step)
- * - restDone: rest finished, pulsing, waiting for "Next" (overtime counted from endsAt)
+ * - restDone: rest finished, pulsing, waiting for "Next" (overtime counted from endsAt);
+ *   only when workout.autoAdvance is false — otherwise the next work step is shown directly
  */
 export type SessionPhase = 'work' | 'prepare' | 'countdown' | 'countdownDone' | 'rest' | 'restDone';
 

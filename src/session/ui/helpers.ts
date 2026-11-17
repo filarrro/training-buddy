@@ -21,6 +21,7 @@ export function prefersReducedMotion(): boolean {
 
 /** "Ćwiczenie 2/5 · Seria 3/4", "Runda 2/4 · Ćwiczenie 3/5" or "Superseria · Runda 1/3 · Ćwiczenie 4/8" (FR10). */
 export function positionText(step: WorkStep, t: TFunction): string {
+  if (step.warmup) return t('session.position.warmup', { ex: step.exerciseNo, exTotal: step.exerciseTotal });
   if (step.group) {
     return t(step.group === 'superset' ? 'session.position.superset' : 'session.position.circuitBlock', {
       round: step.round ?? step.set,
@@ -75,6 +76,8 @@ export function restReasonText(s: ActiveSession, rest: RestStep, t: TFunction): 
 
 /** Coaching note of the step's workout item (e.g. "Slow 5-second lowering"), or null. */
 export function stepNote(s: ActiveSession, step: WorkStep, t: TFunction): string | null {
+  // Warm-up: the "go light" cue replaces the coaching note (which is about the working sets).
+  if (step.warmup) return t('session.warmup.note');
   const key = s.workout.items[step.itemIndex]?.noteKey;
   return key ? t(key) : null;
 }

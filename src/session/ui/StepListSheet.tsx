@@ -31,11 +31,12 @@ export function StepListSheet({ open, session, onClose, onPick }: Props) {
   session.steps.forEach((st, index) => {
     if (st.kind !== 'work') return;
     const start = st.group ? groupStart(session, st.itemIndex) : st.itemIndex;
-    const key = circuit ? `r${st.round}` : st.group ? `g${start}` : `e${st.itemIndex}`;
+    const key = st.warmup ? 'warmup' : circuit ? `r${st.round}` : st.group ? `g${start}` : `e${st.itemIndex}`;
     let g = groups[groups.length - 1];
     if (!g || g.key !== key) {
       let title: string;
-      if (circuit) title = t('session.list.round', { n: st.round ?? 1 });
+      if (st.warmup) title = t('session.list.warmup');
+      else if (circuit) title = t('session.list.round', { n: st.round ?? 1 });
       else if (st.group) {
         const names: string[] = [];
         for (let k = start; k < session.workout.items.length; k++) {
@@ -72,7 +73,7 @@ export function StepListSheet({ open, session, onClose, onPick }: Props) {
                 const status = session.statuses[index] ?? 'todo';
                 const ex = exerciseOf(session, step);
                 const side = sideText(session, step, t);
-                const title = circuit
+                const title = circuit || step.warmup
                   ? stepName(session, step, t)
                   : step.group
                     ? `${stepName(session, step, t)} · ${t('session.list.set', { n: step.round ?? step.set })}`
@@ -95,7 +96,7 @@ export function StepListSheet({ open, session, onClose, onPick }: Props) {
                         </span>
                         <span className="sx-row__sub tabular">{stepTargetText(session, step, t)}</span>
                       </span>
-                      {(circuit || step.group) && ex && <CategoryBadge category={ex.category} size="dot" />}
+                      {(circuit || step.group || step.warmup) && ex && <CategoryBadge category={ex.category} size="dot" />}
                       <span className="sx-row__status">{statusLabel}</span>
                     </button>
                   </li>

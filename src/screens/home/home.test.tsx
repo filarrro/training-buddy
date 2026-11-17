@@ -12,7 +12,7 @@ afterEach(cleanup);
 
 beforeEach(async () => {
   await act(async () => {
-    useLibrary.setState({ exercises: [], workouts: [], plans: [], planLast: {} });
+    useLibrary.setState({ exercises: [], workouts: [], plans: [], planLast: {}, favorites: [] });
     useSettings.setState({ lang: 'pl' });
     nav.reset();
   });
@@ -56,7 +56,40 @@ describe('StartScreen', () => {
   });
 });
 
+describe('favourites', () => {
+  it('a favourite plan and a favourite workout from inside a plan are listed first', async () => {
+    await act(async () => {
+      render(<StartScreen />);
+    });
+    expect(screen.queryByText('Ulubione')).toBeNull();
+    await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Dodaj do ulubionych: Push / Pull / Legs' })));
+    await act(async () => useLibrary.getState().toggleFavorite(FBW_A_ID));
+    const sections = screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent);
+    expect(sections[0]).toBe('Ulubione2');
+    expect(sections[1]).toBe('Plany4');
+    const cards = [...document.querySelectorAll('.wcard .wcard__name')].map((n) => n.textContent);
+    expect(cards.slice(0, 2)).toEqual(['Push / Pull / Legs', 'FBW A · masa ciała']);
+    expect(screen.getByRole('button', { name: 'Usuń z ulubionych: Push / Pull / Legs' }).getAttribute('aria-pressed')).toBe('true');
+  });
+});
+
 describe('PreviewScreen', () => {
+  it('session flow: auto-advance is on by default, warm-up off; both are saved with the workout', async () => {
+    await act(async () => {
+      render(<PreviewScreen workoutId={FBW_A_ID} />);
+    });
+    const auto = screen.getByRole('switch', { name: /Automatycznie po przerwie/ });
+    const warm = screen.getByRole('switch', { name: /Seria rozgrzewkowa/ });
+    expect(auto.getAttribute('aria-checked')).toBe('true');
+    expect(warm.getAttribute('aria-checked')).toBe('false');
+    const before = screen.getByText(/^~\d+ min$/).textContent;
+    await act(async () => fireEvent.click(auto));
+    await act(async () => fireEvent.click(warm));
+    expect(getWorkout(FBW_A_ID)).toMatchObject({ autoAdvance: false, warmup: true });
+    expect(screen.getByText(/^~\d+ min$/).textContent).not.toBe(before); // estimate includes the warm-up
+    expect(screen.getByText('Przerwa w rozgrzewce')).toBeTruthy();
+  });
+
   it('shows the plan in order with sets × target and the time range hint (FR7)', async () => {
     await act(async () => {
       render(<PreviewScreen workoutId={FBW_A_ID} />);

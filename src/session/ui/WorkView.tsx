@@ -34,6 +34,12 @@ export function WorkView({ session, step, now }: Props) {
         <div className="sx-position tabular">{positionText(step, t)}</div>
         <div className="row sx-badges">
           {ex && <CategoryBadge category={ex.category} size="md" />}
+          {step.warmup && (
+            <span className="sx-warmup">
+              <Icon name="flame" size={16} />
+              {t('session.warmup.badge')}
+            </span>
+          )}
           {side && (
             <span className={cx('sx-side', step.side === 'right' && 'sx-side--right')}>
               <Icon name={step.side === 'left' ? 'back' : 'forward'} size={16} />

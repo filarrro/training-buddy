@@ -22,6 +22,8 @@ function restDuration(workout: Workout, reason: RestReason): number {
       return workout.mode === 'circuit' ? r.circuit.betweenExercisesSec : r.straight.betweenExercisesSec;
     case 'rounds':
       return r.circuit.betweenRoundsSec;
+    case 'warmup':
+      return workout.mode === 'circuit' ? r.circuit.betweenRoundsSec : r.straight.betweenExercisesSec;
   }
 }
 
@@ -176,13 +178,49 @@ function planCircuit(workout: Workout, exercisesById: ExercisesById): PlannedWor
 }
 
 /**
- * Flattens a workout into steps (BR1 straight with linked groups / BR2 circuit).
- * Rests of 0 s are omitted; there is never a rest after the last work step.
+ * Warm-up round (workout.warmup): one light set of every exercise in item order, circuit-style —
+ * the circuit "between exercises" rest in both modes, links and per-item rests ignored — followed
+ * by the 'warmup' rest before the main part.
+ */
+function planWarmup(workout: Workout, exercisesById: ExercisesById): PlannedWork[] {
+  const items = resolvedItems(workout, exercisesById);
+  const between: PlannedRest = { reason: 'exercises', durationSec: workout.rest.circuit.betweenExercisesSec };
+  const out: PlannedWork[] = [];
+  items.forEach(({ item, itemIndex, exercise }, pos) => {
+    const sides = exercise!.unilateral ? (['left', 'right'] as const) : [undefined];
+    sides.forEach((side, sideIdx) => {
+      let restAfter: PlannedRest;
+      if (sideIdx < sides.length - 1) restAfter = planned(workout, 'sides');
+      else if (pos < items.length - 1) restAfter = between;
+      else restAfter = planned(workout, 'warmup');
+      out.push({
+        step: {
+          kind: 'work',
+          itemIndex,
+          exerciseId: item.exerciseId,
+          set: 0,
+          setsTotal: item.sets,
+          exerciseNo: pos + 1,
+          exerciseTotal: items.length,
+          warmup: true,
+          ...(side ? { side } : {}),
+        },
+        restAfter,
+      });
+    });
+  });
+  return out;
+}
+
+/**
+ * Flattens a workout into steps (BR1 straight with linked groups / BR2 circuit), after the
+ * optional warm-up round. Rests of 0 s are omitted; there is never a rest after the last work step.
  * Items whose exercise is unknown are skipped.
  */
 export function generateSteps(workout: Workout, exercisesById: ExercisesById): Step[] {
-  const plan =
+  const main =
     workout.mode === 'circuit' ? planCircuit(workout, exercisesById) : planStraight(workout, exercisesById);
+  const plan = workout.warmup ? [...planWarmup(workout, exercisesById), ...main] : main;
   const steps: Step[] = [];
   plan.forEach((p, i) => {
     steps.push({ ...p.step, workIndex: i });

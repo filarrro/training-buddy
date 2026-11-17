@@ -264,6 +264,9 @@ export function buildWorkout(
       })),
     ),
     ...(base?.noteKey ? { noteKey: base.noteKey } : {}),
+    // Session options are set in the preview; the editor keeps them.
+    ...(base?.autoAdvance === false ? { autoAdvance: false } : {}),
+    ...(base?.warmup ? { warmup: true } : {}),
   };
   if (!keepTranslated) w.name = name;
   return w;

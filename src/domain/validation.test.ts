@@ -12,8 +12,8 @@ describe('validation', () => {
   });
 
   it('sanitizeLibrary never throws and drops invalid entries', () => {
-    expect(sanitizeLibrary(null)).toEqual({ exercises: [], workouts: [], plans: [], planLast: {} });
-    expect(sanitizeLibrary('garbage')).toEqual({ exercises: [], workouts: [], plans: [], planLast: {} });
+    expect(sanitizeLibrary(null)).toEqual({ exercises: [], workouts: [], plans: [], planLast: {}, favorites: [] });
+    expect(sanitizeLibrary('garbage')).toEqual({ exercises: [], workouts: [], plans: [], planLast: {}, favorites: [] });
     const lib = sanitizeLibrary({
       exercises: [
         { id: 'a', name: 'A', category: 'pull', unilateral: false, defaultSets: 3, defaultTarget: { type: 'reps', min: 1, max: 2 } },
@@ -41,6 +41,16 @@ describe('validation', () => {
     expect(w.rest.straight).toEqual({ betweenSetsSec: 60, betweenExercisesSec: 120 });
     expect(w.rest.circuit).toEqual({ betweenExercisesSec: 30, betweenRoundsSec: 120 });
     expect(w.items).toHaveLength(1);
+    expect(w.autoAdvance).toBeUndefined();
+    expect(w.warmup).toBeUndefined();
+  });
+
+  it('keeps session options and favourites, dropping junk', () => {
+    const base = { id: 'x', name: 'X', items: [] };
+    expect(sanitizeWorkout({ ...base, autoAdvance: false, warmup: true })).toMatchObject({ autoAdvance: false, warmup: true });
+    const w = sanitizeWorkout({ ...base, autoAdvance: 'no', warmup: 1 })!;
+    expect('autoAdvance' in w || 'warmup' in w).toBe(false);
+    expect(sanitizeLibrary({ favorites: ['a', '', 7, 'a', 'b'] }).favorites).toEqual(['a', 'b']);
   });
 
   it('sanitizeSettings falls back per field', () => {

@@ -15,6 +15,7 @@ import { SettingsScreen } from '../screens/SettingsScreen';
 import { StartScreen } from '../screens/StartScreen';
 import { FinishScreen } from '../session/FinishScreen';
 import { SessionScreen } from '../session/SessionScreen';
+import { initSessionPersistence } from '../session/store';
 import { useHydrated } from '../stores/hydration';
 import { installHistoryBridge } from './history';
 import { nav, useCurrentEntry, useNav } from './nav';
@@ -62,6 +63,7 @@ function Shell() {
 
   useEffect(() => {
     if (shouldShowInstallScreen()) nav.reset({ name: 'install' });
+    initSessionPersistence();
     return installHistoryBridge();
   }, []);
 

@@ -820,3 +820,85 @@
   border-color: color-mix(in srgb, var(--c-work) 55%, var(--c-border));
   box-shadow: var(--shadow-1), 0 0 0 1px color-mix(in srgb, var(--c-work) 25%, transparent);
 }
+
+/* ---------- Favourites ---------- */
+/* The star sits over the bottom-right corner of a card (a sibling of the card button, not inside it). */
+.fav-host {
+  position: relative;
+}
+.fav-btn {
+  position: absolute;
+  right: var(--sp-1);
+  bottom: var(--sp-1);
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--r-pill);
+  color: var(--c-muted);
+}
+.fav.is-on {
+  color: var(--c-warn-text);
+}
+.fav.is-on svg {
+  fill: currentColor;
+}
+.fav svg {
+  transition: transform var(--dur-base) var(--ease-spring);
+}
+.fav.is-on svg {
+  transform: scale(1.12);
+}
+
+/* ---------- Unfinished workout (start screen) ---------- */
+.resume {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  padding: var(--sp-4);
+  background: linear-gradient(160deg, var(--c-work-soft) 0%, var(--c-surface) 70%);
+  border: 1px solid color-mix(in srgb, var(--c-work) 45%, var(--c-border));
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-1);
+}
+.resume__head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+.resume__icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--c-work-soft);
+  color: var(--c-work-text);
+}
+.resume__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.resume__eyebrow {
+  color: var(--c-work-text);
+}
+.resume__name {
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-bold);
+  line-height: var(--lh-tight);
+}
+.resume__meta,
+.resume__stale {
+  margin: 0;
+  color: var(--c-text-2);
+  font-size: var(--fs-sm);
+}
+.resume__actions {
+  gap: var(--sp-2);
+}
+.resume__go {
+  flex: 1;
+}

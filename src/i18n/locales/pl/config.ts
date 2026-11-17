@@ -41,7 +41,6 @@ const config: Record<string, string> = {
 
   // Exercises list
   'exercises.new': 'Nowe ćwiczenie',
-  'exercises.readOnly': 'Tylko do odczytu',
   'exercises.duplicated': 'Utworzono „{name}”',
   'exercises.groupCount_one': '{count} ćwiczenie',
   'exercises.groupCount_few': '{count} ćwiczenia',

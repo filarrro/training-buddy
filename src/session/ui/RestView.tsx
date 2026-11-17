@@ -56,6 +56,9 @@ export function RestView({ session, rest, now }: Props) {
               <>
                 <span className="sx-clock display-num">{formatClock(sec)}</span>
                 <span className="sx-ring-label sx-ring-label--rest">{t('session.rest.breathe')}</span>
+                {session.workout.autoAdvance !== false && (
+                  <span className="sx-ring-hint">{t('session.rest.autoNext')}</span>
+                )}
               </>
             )}
           </div>

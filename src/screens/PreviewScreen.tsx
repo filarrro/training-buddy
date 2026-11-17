@@ -1,14 +1,19 @@
+import { useState } from 'react';
 import { nav } from '../app/nav';
-import { Button, IconButton, ScreenHeader } from '../components';
+import { Button, ConfirmDialog, IconButton, ScreenHeader, Stepper } from '../components';
 import { formatEstimate } from '../domain/estimate';
-import { workoutName } from '../domain/format';
+import { formatClock, workoutName } from '../domain/format';
 import { blocksOf } from '../domain/generator';
 import type { RestSettings, WorkoutItem, WorkoutMode } from '../domain/types';
 import { useT } from '../i18n';
+import { LIMITS } from '../domain/validation';
+import { useSessionStore } from '../session/store';
 import { useExercisesById, useLibrary, useWorkout } from '../stores/library';
+import { FavButton } from './home/FavButton';
 import { PlanList } from './home/PlanList';
-import { RestPanel } from './home/RestPanel';
+import { REST_STEP, RestPanel } from './home/RestPanel';
 import { Segmented } from './home/Segmented';
+import { ToggleRow } from './home/Toggle';
 import { workoutStats } from './home/workoutStats';
 import './home/home.css';
 
@@ -31,6 +36,9 @@ export function PreviewScreen({ workoutId }: { workoutId: string }) {
   const t = useT();
   const workout = useWorkout(workoutId);
   const byId = useExercisesById();
+  // An unfinished workout from a previous run: ask before replacing it (D39).
+  const saved = useSessionStore((s) => s.saved);
+  const [confirmReplace, setConfirmReplace] = useState(false);
 
   if (!workout) {
     return (
@@ -51,6 +59,9 @@ export function PreviewScreen({ workoutId }: { workoutId: string }) {
   const setItems = (items: WorkoutItem[]) => update(workout.id, { items });
   const perExerciseRests = blocksOf(workout.items.map((item) => ({ item }))).every((b) => b[b.length - 1]!.item.restSec !== undefined);
   const edit = () => nav.go({ name: 'configWorkout', workoutId: workout.id });
+  const autoAdvance = workout.autoAdvance !== false;
+  const warmup = workout.warmup === true;
+  const warmupRest = workout.rest.circuit.betweenExercisesSec;
 
   return (
     <div className="screen preview">
@@ -58,7 +69,12 @@ export function PreviewScreen({ workoutId }: { workoutId: string }) {
         title={name}
         eyebrow={t('preview.eyebrow')}
         onBack={nav.back}
-        actions={<IconButton icon="edit" label={t('preview.edit')} onClick={edit} />}
+        actions={
+          <>
+            <FavButton id={workout.id} name={name} variant="header" />
+            <IconButton icon="edit" label={t('preview.edit')} onClick={edit} />
+          </>
+        }
       />
 
       <div className="screen-body">
@@ -113,6 +129,39 @@ export function PreviewScreen({ workoutId }: { workoutId: string }) {
               <p className="muted small">{t('preview.rest.savedHint')}</p>
             </section>
 
+            <section className="stack fade-up" aria-labelledby="flow-title">
+              <h2 id="flow-title" className="section-title">
+                {t('preview.flow.title')}
+              </h2>
+              <div className="set-card">
+                <ToggleRow
+                  icon="forward"
+                  label={t('preview.flow.auto')}
+                  description={t(autoAdvance ? 'preview.flow.auto.on' : 'preview.flow.auto.off')}
+                  checked={autoAdvance}
+                  onChange={(v) => update(workout.id, { autoAdvance: v })}
+                />
+                <ToggleRow
+                  icon="flame"
+                  label={t('preview.flow.warmup')}
+                  description={t(`preview.flow.warmup.${workout.mode}`)}
+                  checked={warmup}
+                  onChange={(v) => update(workout.id, { warmup: v })}
+                />
+                {warmup && workout.mode === 'straight' && (
+                  <Stepper
+                    label={t('preview.flow.warmupRest')}
+                    value={warmupRest}
+                    min={LIMITS.restMinSec}
+                    max={LIMITS.restMaxSec}
+                    step={REST_STEP.circuit}
+                    format={(v) => (v === 0 ? t('preview.rest.none') : formatClock(v))}
+                    onChange={(v) => setRest({ ...workout.rest, circuit: { ...workout.rest.circuit, betweenExercisesSec: v } })}
+                  />
+                )}
+              </div>
+            </section>
+
             <section className="stack" aria-labelledby="plan-title">
               <h2 id="plan-title" className="section-title">
                 {t('preview.plan.title')}
@@ -144,11 +193,24 @@ export function PreviewScreen({ workoutId }: { workoutId: string }) {
           icon="play"
           disabled={empty}
           className={empty ? undefined : 'start-btn'}
-          onClick={() => nav.startSession(workout.id)}
+          onClick={() => (saved ? setConfirmReplace(true) : nav.startSession(workout.id))}
         >
           {t('preview.start')}
         </Button>
       </div>
+
+      <ConfirmDialog
+        open={confirmReplace && !!saved}
+        tone="danger"
+        title={t('start.resume.replaceTitle')}
+        message={saved ? t('start.resume.replaceMessage', { name: workoutName(saved.session.workout, t) }) : ''}
+        confirmLabel={t('start.resume.replaceConfirm')}
+        onCancel={() => setConfirmReplace(false)}
+        onConfirm={() => {
+          setConfirmReplace(false);
+          nav.startSession(workout.id);
+        }}
+      />
     </div>
   );
 }

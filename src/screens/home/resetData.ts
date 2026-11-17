@@ -9,7 +9,7 @@ import { useUi } from '../../stores/ui';
  * IndexedDB key-value store (library, settings, ui and any later keys) and reloads the page.
  */
 export async function resetAllData(): Promise<void> {
-  useLibrary.setState({ exercises: [], workouts: [], plans: [], planLast: {} });
+  useLibrary.setState({ exercises: [], workouts: [], plans: [], planLast: {}, favorites: [] });
   useSettings.getState().reset();
   useUi.setState({ lockHintSeen: false, installScreenSeen: false });
   try {

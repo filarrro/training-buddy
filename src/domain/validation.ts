@@ -159,6 +159,8 @@ export function sanitizeWorkout(x: unknown): Workout | null {
     rest: sanitizeRest(x.rest),
     items: normalizeLinks(items),
     ...(isNoteKey(x.noteKey) ? { noteKey: x.noteKey } : {}),
+    ...(x.autoAdvance === false ? { autoAdvance: false } : {}),
+    ...(x.warmup === true ? { warmup: true } : {}),
   };
 }
 
@@ -176,6 +178,8 @@ export interface LibraryData {
   plans: Plan[];
   /** last workout finished from each plan ("next" hint) */
   planLast: PlanLast;
+  /** ids of favourite plans and workouts (built-in or custom), shown first on the start screen */
+  favorites: string[];
 }
 
 export function sanitizePlan(x: unknown): Plan | null {
@@ -222,7 +226,8 @@ export function sanitizeLibrary(x: unknown): LibraryData {
   const plans = Array.isArray(o.plans)
     ? uniqueById(o.plans.map(sanitizePlan).filter((pl): pl is Plan => pl !== null))
     : [];
-  return { exercises, workouts, plans, planLast: sanitizePlanLast(o.planLast) };
+  const favorites = Array.isArray(o.favorites) ? [...new Set(o.favorites.filter(isNonEmptyString))] : [];
+  return { exercises, workouts, plans, planLast: sanitizePlanLast(o.planLast), favorites };
 }
 
 /** Per-field fallback to defaults. */

@@ -4,6 +4,9 @@ const session: Record<string, string> = {
   'position.circuit': 'Runda {round}/{roundTotal} · Ćwiczenie {ex}/{exTotal}',
   'position.superset': 'Superseria · Runda {round}/{roundTotal} · Ćwiczenie {ex}/{exTotal}',
   'position.circuitBlock': 'Obwód · Runda {round}/{roundTotal} · Ćwiczenie {ex}/{exTotal}',
+  'position.warmup': 'Rozgrzewka · Ćwiczenie {ex}/{exTotal}',
+  'warmup.badge': 'Rozgrzewka',
+  'warmup.note': 'Lekko: małe obciążenie lub bez, mały wysiłek. Tylko rozgrzej mięśnie.',
   sideProgress: '{side} ({n}/2)',
   progressLabel: 'Postęp treningu',
   // forma zależy od liczby wszystkich kroków ({count}): „z 1 kroku”, „z 5 kroków”
@@ -46,6 +49,7 @@ const session: Record<string, string> = {
   'rest.reason.sets': 'Przerwa między seriami',
   'rest.reason.exercises': 'Przerwa między ćwiczeniami',
   'rest.reason.rounds': 'Przerwa między rundami',
+  'rest.reason.warmup': 'Rozgrzewka zrobiona. Zaraz trening',
   'rest.reason.sides.leg': 'Zmiana nogi',
   'rest.reason.sides.side': 'Zmiana strony',
   'rest.reason.sides.arm': 'Zmiana ręki',
@@ -56,8 +60,10 @@ const session: Record<string, string> = {
   'rest.go': 'Dalej',
   'rest.remaining': 'Do końca przerwy {time}',
   'rest.breathe': 'Oddychaj spokojnie',
+  'rest.autoNext': 'Potem od razu ćwiczenie',
 
   'list.round': 'Runda {n}',
+  'list.warmup': 'Rozgrzewka',
   'list.superset': 'Superseria · {names}',
   'list.circuitBlock': 'Obwód · {names}',
   'list.set': 'Seria {n}',

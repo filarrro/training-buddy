@@ -28,9 +28,8 @@ describe('generateSteps — straight (BR1)', () => {
   it('never starts or ends with a rest and never has two rests in a row', () => {
     expect(steps[0]!.kind).toBe('work');
     expect(steps[steps.length - 1]!.kind).toBe('work');
-    steps.forEach((s, i) => {
-      if (s.kind === 'rest') expect(steps[i + 1]!.kind).toBe('work');
-    });
+    const afterRest = steps.filter((_, i) => i > 0 && steps[i - 1]!.kind === 'rest');
+    expect(afterRest.every((s) => s.kind === 'work')).toBe(true);
   });
 
   it('unilateral exercise yields left/right per set (AC3, FR11)', () => {
@@ -122,5 +121,31 @@ describe('restBefore', () => {
     expect(restBefore(steps, 0)).toBe(-1);
     expect(restBefore(steps, 2)).toBe(1);
     expect(restBefore(steps, 1)).toBe(-1);
+  });
+});
+
+describe('generateSteps — warm-up round', () => {
+  it('straight: one light set of every exercise with the circuit rest, then the plan unchanged', () => {
+    const main = generateSteps(fbwA, BUILTIN_EXERCISES_BY_ID);
+    const steps = generateSteps({ ...fbwA, warmup: true }, BUILTIN_EXERCISES_BY_ID);
+    const warm = workSteps(steps).filter((s) => s.warmup);
+    expect(warm.map((s) => s.exerciseNo)).toEqual([1, 2, 3, 3, 4, 5]); // split squat: left + right
+    expect(warm.every((s) => s.set === 0 && s.exerciseTotal === 5)).toBe(true);
+    // 4 short rests between the exercises, then the rest before the main part
+    const head = steps.slice(0, steps.findIndex((s) => s.kind === 'work' && !s.warmup));
+    expect(rests(head, 'exercises').map((r) => r.durationSec)).toEqual([30, 30, 30, 30]);
+    expect(rests(head, 'warmup').map((r) => r.durationSec)).toEqual([120]);
+    // the main part is exactly the plan without warm-up
+    const tail = steps.slice(head.length).map((s) => (s.kind === 'work' ? { ...s, workIndex: 0 } : s));
+    expect(tail).toEqual(main.map((s) => (s.kind === 'work' ? { ...s, workIndex: 0 } : s)));
+    expect(workSteps(steps).map((s) => s.workIndex)).toEqual(workSteps(steps).map((_, i) => i));
+  });
+
+  it('circuit: an extra first round, then rounds 1..n; the round rest follows the warm-up', () => {
+    const steps = generateSteps({ ...circuit(fbwA), warmup: true }, BUILTIN_EXERCISES_BY_ID);
+    const work = workSteps(steps);
+    expect(work.filter((s) => s.warmup)).toHaveLength(6);
+    expect(work.find((s) => !s.warmup)).toMatchObject({ round: 1, exerciseNo: 1 });
+    expect(rests(steps, 'warmup').map((r) => r.durationSec)).toEqual([120]);
   });
 });

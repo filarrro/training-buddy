@@ -14,9 +14,9 @@ describe('i18n', () => {
     expect(translate('pl', 'common.count.sets', { count: 2 })).toBe('2 serie');
     expect(translate('pl', 'common.count.sets', { count: 5 })).toBe('5 serii');
     expect(translate('pl', 'common.count.sets', { count: 22 })).toBe('22 serie');
-    expect(translate('pl', 'common.count.reps', { count: 3 })).toBe('3 powtórzenia');
-    expect(translate('pl', 'common.count.reps', { count: 5 })).toBe('5 powtórzeń');
-    expect(translate('pl', 'common.count.rounds', { count: 5 })).toBe('5 rund');
+    expect(translate('pl', 'common.count.exercises', { count: 3 })).toBe('3 ćwiczenia');
+    expect(translate('pl', 'common.count.exercises', { count: 5 })).toBe('5 ćwiczeń');
+    expect(translate('pl', 'common.count.workouts', { count: 5 })).toBe('5 treningów');
     expect(translate('en', 'common.count.sets', { count: 1 })).toBe('1 set');
     expect(translate('en', 'common.count.sets', { count: 4 })).toBe('4 sets');
   });

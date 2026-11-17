@@ -45,6 +45,7 @@ export function Segmented<V extends string>({
   };
 
   return (
+    // oxlint-disable-next-line jsx-a11y/interactive-supports-focus -- focus goes to the radios inside (roving tabindex)
     <div
       role="radiogroup"
       aria-label={label}

@@ -61,6 +61,8 @@ export interface LibraryState extends LibraryData {
   duplicatePlan: (id: string, t: TFunction) => string | null;
   /** A workout was finished: remember it as the last one in every plan that contains it. */
   recordWorkoutDone: (workoutId: string, at: number) => void;
+  /** Add / remove a plan or workout id (built-in or custom) from favourites. */
+  toggleFavorite: (id: string) => void;
 }
 
 // ---------- helpers ----------
@@ -154,6 +156,7 @@ const EMPTY: LibraryData = {
   workouts: [],
   plans: [],
   planLast: {},
+  favorites: [],
 };
 
 export const useLibrary = create<LibraryState>()(
@@ -255,7 +258,7 @@ export const useLibrary = create<LibraryState>()(
                 }),
               s.plans,
             );
-          return { workouts: s.workouts.filter((w) => w.id !== id), plans };
+          return { workouts: s.workouts.filter((w) => w.id !== id), plans, favorites: s.favorites.filter((f) => f !== id) };
         });
       },
 
@@ -296,7 +299,7 @@ export const useLibrary = create<LibraryState>()(
         if (isBuiltinPlanId(id)) return;
         set((s) => {
           const { [id]: _drop, ...planLast } = s.planLast;
-          return { plans: s.plans.filter((p) => p.id !== id), planLast };
+          return { plans: s.plans.filter((p) => p.id !== id), planLast, favorites: s.favorites.filter((f) => f !== id) };
         });
       },
 
@@ -328,6 +331,12 @@ export const useLibrary = create<LibraryState>()(
           return { planLast };
         });
       },
+
+      toggleFavorite: (id) => {
+        set((s) => ({
+          favorites: s.favorites.includes(id) ? s.favorites.filter((f) => f !== id) : [...s.favorites, id],
+        }));
+      },
     }),
     persistOptions<LibraryState, LibraryData>('library', {
       partialize: (s) => ({
@@ -335,6 +344,7 @@ export const useLibrary = create<LibraryState>()(
         workouts: s.workouts,
         plans: s.plans,
         planLast: s.planLast,
+        favorites: s.favorites,
       }),
       sanitize: sanitizeLibrary,
     }),
@@ -344,6 +354,7 @@ export const useLibrary = create<LibraryState>()(
 // ---------- selectors (memoised, safe to use directly with useLibrary(selector)) ----------
 
 type LibSlice = Pick<LibraryData, 'exercises' | 'workouts' | 'plans' | 'planLast'>;
+type FavSlice = Pick<LibraryData, 'favorites'>;
 const current = (): LibSlice => useLibrary.getState();
 
 let exCache: {
@@ -504,6 +515,19 @@ export function isPlanNameTaken(name: string, exceptId?: string, s: LibSlice = c
 export function plansUsingWorkout(workoutId: string, s: LibSlice = current()): Plan[] {
   return getAllPlans(s).filter((p) => p.workoutIds.includes(workoutId));
 }
+
+// ---------- favourites ----------
+
+/** Splits a list into favourites (in list order) and the rest. */
+export function splitFavorites<T extends { id: string }>(
+  list: readonly T[],
+  s: FavSlice = useLibrary.getState(),
+): { favorites: T[]; others: T[] } {
+  const fav = new Set(s.favorites);
+  return { favorites: list.filter((x) => fav.has(x.id)), others: list.filter((x) => !fav.has(x.id)) };
+}
+
+export const useIsFavorite = (id: string): boolean => useLibrary((s) => s.favorites.includes(id));
 
 // ---------- hooks ----------
 

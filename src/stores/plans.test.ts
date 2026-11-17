@@ -8,13 +8,21 @@ import {
   PLAN_FBW_WEIGHTS_ID,
 } from '../domain/builtins';
 import { makeT } from '../i18n/core';
-import { getAllPlans, getLooseWorkouts, getPlan, getWorkout, nextPlanWorkoutId, useLibrary } from './library';
+import {
+  getAllPlans,
+  getLooseWorkouts,
+  getPlan,
+  getWorkout,
+  nextPlanWorkoutId,
+  splitFavorites,
+  useLibrary,
+} from './library';
 
 const lib = () => useLibrary.getState();
 const pl = makeT('pl');
 
 beforeEach(() => {
-  useLibrary.setState({ exercises: [], workouts: [], plans: [], planLast: {} });
+  useLibrary.setState({ exercises: [], workouts: [], plans: [], planLast: {}, favorites: [] });
 });
 
 describe('plans', () => {
@@ -97,5 +105,37 @@ describe('plans', () => {
   it('skips workouts without exercises when suggesting', () => {
     lib().updateWorkout(FBW_A_ID, { items: [] });
     expect(nextPlanWorkoutId(getPlan(PLAN_FBW_BODYWEIGHT_ID)!)).toBe(FBW_B_ID);
+  });
+});
+
+describe('favourites', () => {
+  it('toggle works for built-in plans and workouts without creating overrides', () => {
+    lib().toggleFavorite(PLAN_FBW_BODYWEIGHT_ID);
+    lib().toggleFavorite(FBW_B_ID);
+    expect(lib().favorites).toEqual([PLAN_FBW_BODYWEIGHT_ID, FBW_B_ID]);
+    expect(lib().plans).toEqual([]);
+    expect(lib().workouts).toEqual([]);
+    const { favorites, others } = splitFavorites(getAllPlans());
+    expect(favorites.map((p) => p.id)).toEqual([PLAN_FBW_BODYWEIGHT_ID]);
+    expect(others).toHaveLength(4);
+    lib().toggleFavorite(FBW_B_ID);
+    expect(lib().favorites).toEqual([PLAN_FBW_BODYWEIGHT_ID]);
+  });
+
+  it('deleting a workout or plan removes it from favourites', () => {
+    const wId = lib().duplicateWorkout(FBW_A_ID, pl)!;
+    const pId = lib().duplicatePlan(PLAN_FBW_WEIGHTS_ID, pl)!;
+    lib().toggleFavorite(wId);
+    lib().toggleFavorite(pId);
+    lib().deleteWorkout(wId);
+    lib().deletePlan(pId);
+    expect(lib().favorites).toEqual([]);
+  });
+
+  it('session options survive a patch and a duplicate', () => {
+    lib().updateWorkout(FBW_A_ID, { warmup: true, autoAdvance: false });
+    expect(getWorkout(FBW_A_ID)).toMatchObject({ warmup: true, autoAdvance: false, builtIn: true });
+    const copy = getWorkout(lib().duplicateWorkout(FBW_A_ID, pl)!)!;
+    expect(copy).toMatchObject({ warmup: true, autoAdvance: false, builtIn: false });
   });
 });

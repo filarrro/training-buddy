@@ -182,6 +182,7 @@ export function Switch({
         type="button"
         role="switch"
         aria-checked={checked}
+        aria-label={label}
         className={cx('cfg-switch press', checked && 'is-on')}
         onClick={() => onChange(!checked)}
         disabled={disabled}

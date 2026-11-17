@@ -21,6 +21,11 @@ import type {
 /** Fixed "Get ready" before a time countdown (D30). */
 export const PREPARE_MS = 3000;
 
+/** True when at least one set of the plan itself (not the warm-up round) was done. */
+export function hasDoneSet(s: Pick<ActiveSession, 'steps' | 'statuses'>): boolean {
+  return s.steps.some((st, i) => st.kind === 'work' && !st.warmup && s.statuses[i] === 'done');
+}
+
 /** Session as used by the engine: ActiveSession + engine-only bookkeeping. */
 export interface EngineSession extends ActiveSession {
   /** while resting: the work step that was just completed (FR14 "back" during rest returns there) */
@@ -280,7 +285,8 @@ export function resumeTimer(s: EngineSession, now: number): EngineSession {
 }
 
 /**
- * Recompute phases from timestamps (BR6): prepare → countdown → countdownDone, rest → restDone.
+ * Recompute phases from timestamps (BR6): prepare → countdown → countdownDone, and rest → the next
+ * work step (auto-advance) or restDone (workout.autoAdvance === false).
  * Safe to call any time (ticks, visibilitychange); returns the same object when unchanged.
  */
 export function advance(s: EngineSession, now: number): EngineSession {
@@ -292,7 +298,8 @@ export function advance(s: EngineSession, now: number): EngineSession {
     } else if (cur.phase === 'countdown') {
       cur = { ...cur, phase: 'countdownDone' };
     } else if (cur.phase === 'rest') {
-      cur = { ...cur, phase: 'restDone' };
+      // Auto-advance (default): the next exercise is shown as soon as the rest is over.
+      cur = cur.workout.autoAdvance === false ? { ...cur, phase: 'restDone' } : showWork(cur, cur.index + 1);
     } else {
       return cur;
     }
@@ -326,7 +333,8 @@ export function summarize(s: ActiveSession, now: number = Date.now()): SessionSu
   const sets = new Map<string, SessionStepStatus[]>();
   const items = new Map<number, boolean>();
   s.steps.forEach((st, i) => {
-    if (st.kind !== 'work') return;
+    // Warm-up steps are not sets of the plan: they do not count in the summary.
+    if (st.kind !== 'work' || st.warmup) return;
     const key = `${st.itemIndex}:${st.set}`;
     const list = sets.get(key) ?? [];
     list.push(s.statuses[i]!);
